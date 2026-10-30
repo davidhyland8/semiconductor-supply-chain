@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:scg:evidence",
+  "title": "Evidence",
+  "description": "One piece of support for an edge. Excerpts must be verbatim and short.",
+  "type": "object",
+  "required": ["strength"],
+  "additionalProperties": false,
+  "properties": {
+    "source_id": {
+      "description": "Key into data/sources/sources.csv.",
+      "$ref": "urn:scg:common#/$defs/id"
+    },
+    "url": { "type": "string", "format": "uri" },
+    "excerpt": {
+      "description": "Verbatim supporting text from the source, at most ~50 words.",
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 400
+    },
+    "locator": {
+      "description": "Where in the source: page, section, or timestamp.",
+      "type": "string"
+    },
+    "strength": { "$ref": "urn:scg:common#/$defs/strength" },
+    "reasoning": {
+      "description": "Required when strength is inferred: why the relationship is believed to exist.",
+      "type": "string",
+      "minLength": 20
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "strength": { "const": "inferred" } } },
+      "then": { "required": ["reasoning"] },
+      "else": {
+        "required": ["excerpt"],
+        "anyOf": [{ "required": ["source_id"] }, { "required": ["url"] }]
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:scg:edge",
+  "title": "Edge",
+  "description": "Supplier -> buyer relationship for one input.",
+  "type": "object",
+  "required": ["id", "supplier", "buyer", "input", "evidence", "has_alternatives"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "$ref": "urn:scg:common#/$defs/id" },
+    "supplier": { "$ref": "urn:scg:common#/$defs/id" },
+    "buyer": { "$ref": "urn:scg:common#/$defs/id" },
+    "input": {
+      "description": "What flows along the edge, from the controlled vocabulary in data/seed/inputs.csv (e.g. euv-lithography, photoresist, leading-edge-logic-wafers).",
+      "$ref": "urn:scg:common#/$defs/id"
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "urn:scg:evidence" }
+    },
+    "weight": {
+      "oneOf": [{ "$ref": "urn:scg:common#/$defs/weight" }, { "type": "null" }]
+    },
+    "has_alternatives": { "$ref": "urn:scg:common#/$defs/alternatives" },
+    "as_of": { "$ref": "urn:scg:common#/$defs/date" },
+    "notes": { "type": "string" }
+  }
+}

@@ -1,0 +1,17 @@
+# Data dictionary
+
+The JSON Schemas in `schema/` are authoritative. This page maps them to files.
+
+| File | Schema | Notes |
+|---|---|---|
+| `data/seed/nodes.csv` | `node.schema.json` | Hand-curated nodes. `aliases` is `;`-separated. `production_countries` is `CC:share;CC:share` (share optional). |
+| `data/seed/inputs.csv` | – | Controlled vocabulary for edge `input`: `id,name,stage,eto_id` |
+| `data/seed/edges.csv` | `edge.schema.json` | One row per edge. Evidence lives in `evidence.csv`. |
+| `data/seed/evidence.csv` | `evidence.schema.json` | One row per piece of evidence, keyed by `edge_id`. |
+| `data/sources/sources.csv` | `source.schema.json` | Registry of source documents. |
+| `data/sources/cache/<id>.txt` | – | Cached document text (gitignored). Used to verify excerpts. |
+| `data/extracted/<source_id>.jsonl` | `extraction.schema.json` | Candidate relationships awaiting review. |
+| `data/build/graph.v<N>.json` | – | Built graph loaded by the web app: nodes, edges with evidence, precomputed analysis. |
+| `data/build/country_shares.json` | – | Country share per stage/input, with source and `as_of`. |
+
+Identifiers are kebab-case (`tsmc`, `samsung-foundry`). Countries are ISO 3166-1 alpha-2 (`TW`, `KR`, `NL`). Dates are `YYYY[-MM[-DD]]`.

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:scg:source",
+  "title": "Source document",
+  "description": "One row of data/sources/sources.csv. The text is cached at data/sources/cache/<id>.txt (gitignored).",
+  "type": "object",
+  "required": ["id", "url", "title", "doc_type", "retrieved"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "$ref": "urn:scg:common#/$defs/id" },
+    "url": { "type": "string", "format": "uri" },
+    "title": { "type": "string" },
+    "publisher": { "type": "string" },
+    "company": {
+      "description": "Node id of the company the document is about, if any.",
+      "$ref": "urn:scg:common#/$defs/id"
+    },
+    "doc_type": {
+      "enum": [
+        "10-K", "20-F", "annual_report",
+        "press_release", "earnings_call", "investor_presentation",
+        "market_research", "news", "dataset", "other"
+      ]
+    },
+    "published": { "$ref": "urn:scg:common#/$defs/date" },
+    "retrieved": { "$ref": "urn:scg:common#/$defs/date" },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

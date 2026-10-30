@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:scg:common",
+  "title": "Shared definitions",
+  "$defs": {
+    "id": {
+      "description": "Kebab-case identifier, e.g. tsmc, samsung-foundry.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "stage": {
+      "enum": [
+        "design_tools_ip",
+        "chip_design",
+        "equipment",
+        "materials",
+        "fabrication",
+        "packaging_test",
+        "assembly_end_products"
+      ]
+    },
+    "country": {
+      "description": "ISO 3166-1 alpha-2 code. Taiwan is TW.",
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
+    "date": {
+      "description": "ISO date; YYYY or YYYY-MM allowed when the source is no more precise.",
+      "type": "string",
+      "pattern": "^\\d{4}(-\\d{2}(-\\d{2})?)?$"
+    },
+    "share": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "strength": {
+      "description": "disclosed = stated in a filing; reported = news, press release, transcript or market research; inferred = no direct source, reasoning required.",
+      "enum": ["disclosed", "reported", "inferred"]
+    },
+    "alternatives": {
+      "description": "Whether the buyer has other suppliers for this input.",
+      "enum": ["yes", "no", "unknown"]
+    },
+    "weight": {
+      "type": "object",
+      "required": ["value", "metric", "basis"],
+      "additionalProperties": false,
+      "properties": {
+        "value": { "$ref": "#/$defs/share" },
+        "metric": {
+          "enum": [
+            "share_of_buyer_input",
+            "share_of_supplier_revenue"
+          ]
+        },
+        "basis": {
+          "description": "Where the number comes from, e.g. 'TSMC FY2025 20-F: customer A 22% of net revenue'.",
+          "type": "string",
+          "minLength": 5
+        }
+      }
+    }
+  }
+}

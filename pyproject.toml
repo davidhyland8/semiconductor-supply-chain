@@ -1,0 +1,27 @@
+[project]
+name = "scg"
+version = "0.1.0"
+description = "Semiconductor supply chain graph: data pipeline, analysis and scenario engine"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "jsonschema>=4.26.0",
+]
+
+[project.scripts]
+scg = "scg.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.11.28,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "pipeline/src"
+
+[tool.pytest.ini_options]
+testpaths = ["pipeline/tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]

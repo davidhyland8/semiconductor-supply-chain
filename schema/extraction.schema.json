@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:scg:extraction",
+  "title": "Extracted relationship candidate",
+  "description": "One line of data/extracted/<source_id>.jsonl. Candidates are not graph edges until reviewed and merged.",
+  "type": "object",
+  "required": [
+    "source_id", "supplier", "buyer", "input",
+    "excerpt", "locator", "strength", "has_alternatives", "extractor"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "source_id": { "$ref": "urn:scg:common#/$defs/id" },
+    "supplier": { "$ref": "#/$defs/entity" },
+    "buyer": { "$ref": "#/$defs/entity" },
+    "input": {
+      "description": "Input id from data/seed/inputs.csv, or a proposed new kebab-case id if none fits (set input_is_new).",
+      "$ref": "urn:scg:common#/$defs/id"
+    },
+    "input_is_new": { "type": "boolean" },
+    "excerpt": {
+      "description": "Verbatim text from the cached document that states the relationship. Checked by the validator.",
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 400
+    },
+    "locator": {
+      "description": "Section heading, page or item number where the excerpt appears.",
+      "type": "string",
+      "minLength": 1
+    },
+    "strength": {
+      "description": "disclosed only for filings (10-K, 20-F, annual report); reported for everything else. Extraction never emits inferred.",
+      "enum": ["disclosed", "reported"]
+    },
+    "weight": {
+      "oneOf": [{ "$ref": "urn:scg:common#/$defs/weight" }, { "type": "null" }]
+    },
+    "has_alternatives": { "$ref": "urn:scg:common#/$defs/alternatives" },
+    "anonymised": {
+      "description": "True when the document names the counterparty only as e.g. 'Customer A'; the entity then records the extractor's identification and why.",
+      "type": "boolean"
+    },
+    "confidence": { "enum": ["high", "medium", "low"] },
+    "notes": { "type": "string" },
+    "extractor": {
+      "type": "object",
+      "required": ["agent", "date"],
+      "additionalProperties": false,
+      "properties": {
+        "agent": { "type": "string" },
+        "model": { "type": "string" },
+        "date": { "$ref": "urn:scg:common#/$defs/date" }
+      }
+    }
+  },
+  "$defs": {
+    "entity": {
+      "type": "object",
+      "required": ["mention", "node_id"],
+      "additionalProperties": false,
+      "properties": {
+        "mention": {
+          "description": "The name exactly as written in the document.",
+          "type": "string",
+          "minLength": 1
+        },
+        "node_id": {
+          "description": "Matching id from data/seed/nodes.csv, or null if no node matches yet.",
+          "oneOf": [{ "$ref": "urn:scg:common#/$defs/id" }, { "type": "null" }]
+        },
+        "proposed_name": {
+          "description": "Canonical name to use if node_id is null.",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

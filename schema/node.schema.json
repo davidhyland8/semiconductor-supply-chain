@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:scg:node",
+  "title": "Node",
+  "description": "One business in one stage. Multi-stage companies are split into units sharing a parent (samsung-foundry, samsung-memory -> samsung).",
+  "type": "object",
+  "required": ["id", "name", "kind", "stage", "hq_country"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "$ref": "urn:scg:common#/$defs/id" },
+    "name": { "type": "string", "minLength": 1 },
+    "kind": {
+      "description": "company = a business unit; product_category = an end-market sink such as ai-servers or automotive.",
+      "enum": ["company", "product_category"]
+    },
+    "parent": {
+      "description": "Parent group id for business units; null for standalone companies.",
+      "oneOf": [{ "$ref": "urn:scg:common#/$defs/id" }, { "type": "null" }]
+    },
+    "stage": { "$ref": "urn:scg:common#/$defs/stage" },
+    "role": {
+      "description": "Finer role within the stage.",
+      "enum": [
+        "eda", "ip",
+        "fabless", "idm",
+        "equipment",
+        "wafers", "photoresist", "gases_chemicals", "substrates", "other_materials",
+        "foundry", "memory",
+        "osat", "advanced_packaging",
+        "ems", "oem", "end_market"
+      ]
+    },
+    "hq_country": { "$ref": "urn:scg:common#/$defs/country" },
+    "production_countries": {
+      "description": "Where this unit's output is physically made. Country scenarios use this, falling back to hq_country when empty.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["country"],
+        "additionalProperties": false,
+        "properties": {
+          "country": { "$ref": "urn:scg:common#/$defs/country" },
+          "share": { "$ref": "urn:scg:common#/$defs/share" },
+          "basis": { "type": "string" },
+          "as_of": { "$ref": "urn:scg:common#/$defs/date" }
+        }
+      }
+    },
+    "aliases": {
+      "description": "Other names seen in documents; used for entity resolution.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "ticker": { "type": "string" },
+    "notes": { "type": "string" }
+  }
+}
