@@ -10,7 +10,9 @@ import { find, searchEntries } from "./search";
 import { esc } from "./ui/html";
 import { etoInputPanel, marketCompanyPanel } from "./ui/marketPanel";
 import { Index, edgePanel, nodePanel } from "./ui/panel";
+import { methodologyHtml } from "./ui/methodology";
 import { Sidebar } from "./ui/sidebar";
+import { type Mode, parseHash, toHash } from "./urlState";
 
 type Selection = { kind: "node" | "edge" | "country" | "market" | "input"; id: string } | null;
 
@@ -28,7 +30,8 @@ function aboutPanel(doc: GraphDoc): string {
       <li><svg class="line-swatch s-inferred" width="28" height="8"><line x1="0" y1="4" x2="28" y2="4"/></svg>
         <strong>${count("inferred")}</strong> inferred from market shares, with the reasoning written down</li>
     </ul>
-    <p>Click a company to see its suppliers, customers and the source behind each link, or take something offline from the left to see what breaks.</p>
+    <p>Click a company to see its suppliers, customers and the source behind each link, or take something offline from the left to see what breaks.
+      Press Esc, click an empty part of the graph, or use × to clear a selection.</p>
     <p>Search also covers ${doc.market.companies.length} more companies and ${doc.market.inputs.length} inputs from the ETO
       dataset, with their market shares. Those companies have no sourced relationships yet, so they aren't in the graph.</p>
     <p class="muted">Graph build v${esc(doc.version)} (${esc(doc.built)}). Public sources only: company filings,
@@ -44,7 +47,8 @@ async function main() {
   let result: ScenarioResult | null = null;
 
   const renderPanel = () => {
-    panelEl.innerHTML = !selection
+    const close = selection ? `<button class="panel-close" data-close title="Close (Esc)" aria-label="Close">×</button>` : "";
+    panelEl.innerHTML = close + (!selection
       ? aboutPanel(doc)
       : selection.kind === "node"
         ? nodePanel(idx, selection.id, result)
@@ -54,8 +58,35 @@ async function main() {
             ? marketCompanyPanel(idx, selection.id)
             : selection.kind === "input"
               ? etoInputPanel(idx, selection.id)
-              : countryPanel(idx, selection.id, result);
+              : countryPanel(idx, selection.id, result));
     panelEl.scrollTop = 0;
+  };
+
+  let mode: Mode = "layered";
+  let graphMode: ViewMode = "layered";
+  const docEl = document.getElementById("methodology")!;
+
+  // Keep the URL in step with what's on screen, so any state can be shared as a link.
+  let applyingHash = false;
+  const syncHash = () => {
+    if (applyingHash) return;
+    const hash = toHash({ view: mode, sel: selection ?? undefined, scenario });
+    if (hash !== location.hash) history.replaceState(null, "", hash || location.pathname + location.search);
+  };
+
+  const setMode = (next: Mode) => {
+    mode = next;
+    document.querySelectorAll("[data-mode]").forEach((x) =>
+      x.setAttribute("aria-pressed", String((x as HTMLElement).dataset.mode === next)),
+    );
+    document.body.classList.toggle("map-mode", next === "map");
+    document.body.classList.toggle("doc-mode", next === "methodology");
+    if (next === "methodology" && !docEl.innerHTML) docEl.innerHTML = methodologyHtml();
+    if (next === "layered" || next === "force") {
+      if (next !== graphMode) view.setMode(next);
+      graphMode = next;
+    }
+    syncHash();
   };
 
   const select = (sel: Selection, zoom = false) => {
@@ -65,6 +96,7 @@ async function main() {
     map.select(sel?.kind === "country" ? sel.id : null);
     if (zoom && inGraph) view.fitTo(inGraph.id);
     renderPanel();
+    syncHash();
   };
 
   const view = new GraphView(document.getElementById("graph")!, doc, {
@@ -82,8 +114,11 @@ async function main() {
       result = active ? propagate(doc.nodes, doc.edges, scenario) : null;
       view.setScenario(result);
       map.setScenario(result, scenario.countries ?? []);
+      // Drop the neighbourhood highlight so the whole impact is visible; the panel stays.
+      if (result) view.select(null);
       sidebar.showSummary(result);
       renderPanel();
+      syncHash();
     },
     onFilters: (f) => {
       const { nodeIds, edgeIds } = visibleElements(doc.nodes, doc.edges, f);
@@ -101,7 +136,9 @@ async function main() {
     const countryOffline = t.closest<HTMLElement>("[data-offline-country]");
     const marketLink = t.closest<HTMLElement>("[data-market]");
     const inputLink = t.closest<HTMLElement>("[data-eto-input]");
-    if (nodeLink) {
+    if (t.closest("[data-close]")) {
+      select(null);
+    } else if (nodeLink) {
       ev.preventDefault();
       select({ kind: "node", id: nodeLink.dataset.node! }, true);
     } else if (offline) {
@@ -118,13 +155,11 @@ async function main() {
   });
 
   document.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach((b) =>
-    b.addEventListener("click", () => {
-      document.querySelectorAll("[data-mode]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-      const mode = b.dataset.mode as ViewMode | "map";
-      document.body.classList.toggle("map-mode", mode === "map");
-      if (mode !== "map") view.setMode(mode);
-    }),
+    b.addEventListener("click", () => setMode(b.dataset.mode as Mode)),
   );
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && selection) select(null);
+  });
   document.getElementById("fit")!.addEventListener("click", () => view.fit());
 
   const search = document.getElementById("search") as HTMLInputElement;
@@ -138,8 +173,27 @@ async function main() {
   search.addEventListener("change", runSearch);
   search.addEventListener("keydown", (ev) => ev.key === "Enter" && runSearch());
 
+  const known = (s: Selection) =>
+    !s ||
+    (s.kind === "node" && idx.node.has(s.id)) ||
+    (s.kind === "edge" && idx.edge.has(s.id)) ||
+    (s.kind === "market" && idx.market.has(s.id)) ||
+    (s.kind === "input" && idx.etoInput.has(s.id)) ||
+    s.kind === "country";
+
+  const applyHash = () => {
+    const state = parseHash(location.hash);
+    applyingHash = true;
+    setMode(state.view ?? "layered");
+    sidebar.setScenario(state.scenario);
+    select(known(state.sel ?? null) ? (state.sel ?? null) : null);
+    applyingHash = false;
+    syncHash(); // drop anything unknown from the URL
+  };
+
   view.relayout();
-  renderPanel();
+  applyHash();
+  window.addEventListener("hashchange", applyHash);
 }
 
 main().catch((err) => {

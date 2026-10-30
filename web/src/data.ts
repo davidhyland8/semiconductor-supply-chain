@@ -145,14 +145,11 @@ export interface GraphDoc {
   };
 }
 
-const builds = import.meta.glob<string>("../../data/build/graph.v*.json", { query: "?url", import: "default" });
-
-export const versionOf = (path: string) => Number(path.match(/graph\.v(\d+)\.json$/)?.[1] ?? 0);
+// "@graph" is aliased to the latest data/build/graph.v<N>.json in vite.config.ts.
+import graphUrl from "@graph?url";
 
 export async function loadLatest(): Promise<GraphDoc> {
-  const latest = Object.keys(builds).sort((a, b) => versionOf(a) - versionOf(b)).pop();
-  if (!latest) throw new Error("No graph build found in data/build. Run `uv run scg build`.");
-  const url = await builds[latest]!();
+  const url = graphUrl;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
   return res.json();

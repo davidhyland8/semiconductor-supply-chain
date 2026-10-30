@@ -31,6 +31,8 @@ def test_write_build_versions_only_on_change(tmp_path, monkeypatch):
     assert build.write_build(tmp_path) == (path, False)
 
     current["value"] = doc([{**E1, "has_alternatives": "no"}])
+    assert build.write_build(tmp_path, check=True) == (tmp_path / "graph.v2.json", True)
+    assert not (tmp_path / "graph.v2.json").exists()
     path2, written2 = build.write_build(tmp_path)
     assert (path2.name, written2) == ("graph.v2.json", True)
     assert json.loads(path2.read_text())["version"] == 2

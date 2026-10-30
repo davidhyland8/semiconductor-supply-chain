@@ -735,3 +735,113 @@ details.desc summary {
   cursor: pointer;
   color: var(--accent);
 }
+
+/* Methodology page */
+.methodology {
+  display: none;
+  overflow-y: auto;
+  background: var(--surface);
+}
+
+body.doc-mode .methodology {
+  display: block;
+}
+
+body.doc-mode .graph,
+body.doc-mode .map {
+  display: none;
+}
+
+body.doc-mode #fit {
+  visibility: hidden;
+}
+
+.doc {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 32px 64px;
+  line-height: 1.6;
+}
+
+.doc h1 {
+  font-size: 24px;
+}
+
+.doc h2 {
+  font-size: 19px;
+  margin-top: 32px;
+}
+
+.doc h3 {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.doc table {
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 12px 0;
+}
+
+.doc th,
+.doc td {
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.doc code {
+  background: var(--bg);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-size: 0.9em;
+}
+
+.doc pre {
+  background: var(--bg);
+  padding: 12px;
+  overflow-x: auto;
+}
+
+.topbar button.link[aria-pressed="true"] {
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+body.doc-mode .layout {
+  grid-template-columns: 1fr;
+}
+
+body.doc-mode .sidebar,
+body.doc-mode .panel {
+  display: none;
+}
+
+.map-toolbar {
+  flex-wrap: wrap;
+  right: 12px;
+  width: max-content;
+  max-width: calc(100% - 24px);
+}
+
+.panel {
+  position: relative;
+}
+
+.panel-close {
+  position: sticky;
+  top: 8px;
+  float: right;
+  z-index: 1;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--muted);
+  margin-top: 8px;
+}

@@ -118,8 +118,9 @@ def _changelog_entry(version: int, prev: dict | None, doc: dict) -> str:
     return "\n".join(lines) + "\n\n"
 
 
-def write_build(build_dir: Path = paths.BUILD_DIR) -> tuple[Path, bool]:
-    """Write a new graph version if content changed. Returns (path, written)."""
+def write_build(build_dir: Path = paths.BUILD_DIR, check: bool = False) -> tuple[Path, bool]:
+    """Write a new graph version if content changed. Returns (path, written).
+    With check=True nothing is written; `written` says whether a new version would be."""
     build_dir.mkdir(parents=True, exist_ok=True)
     doc = graph_document()
     content_hash = _content_hash(doc)
@@ -127,6 +128,8 @@ def write_build(build_dir: Path = paths.BUILD_DIR) -> tuple[Path, bool]:
     prev = json.loads(latest.read_text()) if latest else None
     if prev and prev.get("content_hash") == content_hash:
         return latest, False
+    if check:
+        return build_dir / f"graph.v{version + 1}.json", True
 
     version += 1
     out = build_dir / f"graph.v{version}.json"

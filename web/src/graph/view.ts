@@ -138,6 +138,15 @@ export class GraphView {
       wheelSensitivity: 0.3,
       boxSelectionEnabled: false,
     });
+    // Re-fit when the canvas changes size (window resize, panels toggling, a view switch).
+    let resizeTimer: number | undefined;
+    new ResizeObserver(() => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        this.cy.resize();
+        this.cy.fit(this.cy.elements().not(".hidden"), 40);
+      }, 100);
+    }).observe(container);
     this.cy.on("tap", "node", (ev) => handlers.onNode(ev.target.id()));
     this.cy.on("tap", "edge", (ev) => handlers.onEdge(ev.target.id()));
     this.cy.on("tap", (ev) => {

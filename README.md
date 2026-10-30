@@ -8,9 +8,21 @@ An interactive map of the global semiconductor supply chain, with disruption sce
 - `web/`: static front end (Vite + TypeScript, Cytoscape.js, D3)
 - `docs/`: [methodology](docs/methodology.md) and [data dictionary](docs/data-dictionary.md)
 
-## Rebuilding the data
+## Quick start
 
-Requires [uv](https://docs.astral.sh/uv/).
+Requires [uv](https://docs.astral.sh/uv/) and Node.js.
+
+```bash
+make data && make web   # rebuild the graph from the committed seed + ETO snapshot, test, build web/dist
+make dev                # http://localhost:5173
+make check              # CI: the committed seed must reproduce the committed build exactly
+```
+
+This rebuilds everything that is in the repo. Collecting documents and running extraction (steps 2–4 below) need network access and a Claude Code session, so they are not part of `make`. `.github/workflows/pages.yml` runs `make check` and `make web`, then publishes `web/dist` to GitHub Pages on pushes to `main`.
+
+The app's Methodology page renders `docs/methodology.md`. The URL hash records the view, selection and scenario (e.g. `#view=map&sel=country:JP&off=countries:JP`), so any state can be shared as a link.
+
+## Rebuilding the data step by step
 
 ```bash
 uv sync

@@ -105,7 +105,10 @@ def _review(args: argparse.Namespace) -> int:
 
 
 def _build(args: argparse.Namespace) -> int:
-    path, written = write_build()
+    path, written = write_build(check=args.check)
+    if args.check:
+        print(f"{'out of date: would write' if written else 'up to date'}: {path}")
+        return 1 if written else 0
     print(f"{'wrote' if written else 'unchanged'}: {path}")
     return 0
 
@@ -176,6 +179,7 @@ def main(argv: list[str] | None = None) -> int:
     inf.set_defaults(func=_add_inferred)
 
     bld = sub.add_parser("build", help="build data/build/graph.v<N>.json")
+    bld.add_argument("--check", action="store_true", help="exit 1 if the seed data would produce a new version")
     bld.set_defaults(func=_build)
 
     args = parser.parse_args(argv)
