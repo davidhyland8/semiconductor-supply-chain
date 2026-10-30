@@ -101,6 +101,25 @@ Country scenarios use these rules:
 - **Scenario impact on the map:** for each country, the share of companies headquartered there that a scenario impacts (fully or offline = 1, partially = ½). Countries taken offline are drawn black.
 - **Criticality:** every single company, stage and country is taken offline in turn. Score = offline nodes (other than the named company) + fully impacted nodes + ½ × partially impacted nodes. It is precomputed into the build.
 
+## ETO market catalogue
+
+The ETO dataset says which companies sell each input and their global market share. It does not say who buys from them, so **market share is never turned into a supply edge** on its own. The only exception is the curated rules in `inferred.py`, which are written out with their reasoning.
+
+- **Companies already in the graph** get their ETO positions attached as `market_positions`. Matching uses `eto_provider_id` in `nodes.csv`, or a row in `data/seed/eto_providers.csv`.
+- **`eto_providers.csv`** maps or skips ETO providers, and can move a single position to another business unit. Every row needs a written reason. For example:
+  - ETO's "Samsung" is skipped: its positions span Samsung affiliates and can't be given to one unit.
+  - Mentor Graphics maps to Siemens EDA.
+  - Intel's photomasks go to Intel Foundry.
+- **Name check:** `scg validate seed` fails if an ETO provider's name or alias matches a graph node but the provider is neither mapped nor skipped. This catches duplicates.
+- **Other ETO companies** with at least one market position go into a market catalogue (`market.companies`). They are not graph nodes and take no part in scenarios or criticality, because they have no recorded relationships. Their stage is inferred from what they sell: the most common stage among their inputs. ETO providers listed with no positions are left out.
+- **ETO inputs** (`market.inputs`) carry:
+  - the type hierarchy (`parent`, `children`) and where each input `goes_into`;
+  - every listed supplier, with a share where ETO gives one;
+  - country shares and company HHI;
+  - which graph inputs correspond to them (`graph_inputs`).
+- **Stage of an ETO input:** the stage of the top-level input it is a type of (`STAGE_INPUTS`). Failing that, ETO's own stage. Failing that, its type: tool goes to equipment, material to materials, design resource to chip design.
+- **Licence:** the dataset is CC BY-NC 4.0 (`data/raw/eto/LICENSE-NOTE.md`). The app credits it wherever its figures appear.
+
 ## Extraction
 
 Relationships beyond the hand-curated seed come from the `relationship-extractor` Claude Code agent (`.claude/agents/relationship-extractor.md`). The flow:

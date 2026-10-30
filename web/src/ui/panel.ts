@@ -1,6 +1,6 @@
 // Details panel for a selected node or edge, with every edge's evidence.
 
-import type { Edge, Evidence, GraphDoc, Impact, Node } from "../data";
+import type { Edge, EtoInput, Evidence, GraphDoc, Impact, MarketCompany, MarketPosition, Node } from "../data";
 import { STATE_LABEL, countryName, explainCause, stageColor, stageLabel } from "../labels";
 import type { ScenarioResult } from "../scenario/types";
 import { esc, pct, safeUrl } from "./html";
@@ -13,6 +13,9 @@ export class Index {
   readonly inputName = new Map<string, string>();
   readonly groupName = new Map<string, string>();
   readonly companyImpact = new Map<string, Impact>();
+  readonly etoInput = new Map<string, EtoInput>();
+  readonly market = new Map<string, MarketCompany>();
+  readonly inputEto = new Map<string, string>(); // graph input id -> ETO input id
 
   constructor(readonly doc: GraphDoc) {
     for (const n of doc.nodes) this.node.set(n.id, n);
@@ -24,10 +27,37 @@ export class Index {
     for (const i of doc.inputs) this.inputName.set(i.id, i.name);
     for (const g of doc.groups) this.groupName.set(g.id, g.name);
     for (const c of doc.analysis.criticality.companies) this.companyImpact.set(c.id, c);
+    for (const i of doc.market.inputs) this.etoInput.set(i.id, i);
+    for (const c of doc.market.companies) this.market.set(c.id, c);
+    for (const i of doc.inputs) if (i.eto_id && this.etoInput.has(i.eto_id)) this.inputEto.set(i.id, i.eto_id);
   }
 
   name = (id: string) => this.node.get(id)?.name ?? id;
   input = (id: string) => this.inputName.get(id) ?? id;
+}
+
+/** A graph input's name, linked to its ETO market panel when ETO covers it. */
+export function inputLink(idx: Index, id: string): string {
+  const eto = idx.inputEto.get(id);
+  return eto ? `<button class="link" data-eto-input="${esc(eto)}">${esc(idx.input(id))}</button>` : esc(idx.input(id));
+}
+
+/** ETO market positions: input, share (or "supplier" when ETO gives no share), year. */
+export function positionsHtml(idx: Index, positions: MarketPosition[]): string {
+  if (positions.length === 0) return `<p class="muted">None in the ETO dataset.</p>`;
+  const rows = positions
+    .map((p) => {
+      const input = idx.etoInput.get(p.input);
+      const share = p.share != null ? pct(p.share) : `<span class="muted">supplier</span>`;
+      const source = p.source != null ? idx.doc.market.sources[p.source] : "";
+      return `<li title="${esc(source)}"><button class="link" data-eto-input="${esc(p.input)}">${esc(input?.name ?? p.input)}</button>
+        <span class="bar"><span style="width:${(p.share ?? 0) * 100}%"></span></span><span>${share}</span></li>`;
+    })
+    .join("");
+  const years = [...new Set(positions.map((p) => p.year).filter(Boolean))].sort().join(", ");
+  return `<ol class="share-list">${rows}</ol>
+    <p class="hint">Global market share from the ${esc(idx.doc.market.citation)}${years ? ` (${esc(years)})` : ""}.
+      Hover a row for ETO's underlying source.</p>`;
 }
 
 const badge = (strength: string) => `<span class="badge s-${esc(strength)}">${esc(strength)}</span>`;
@@ -73,7 +103,7 @@ function edgeList(idx: Index, edges: Edge[], other: "supplier" | "buyer", result
           </details>`;
         })
         .join("");
-      return `<h4>${esc(idx.input(input))}</h4>${rows}`;
+      return `<h4>${inputLink(idx, input)}</h4>${rows}`;
     })
     .join("");
 }
@@ -116,6 +146,7 @@ export function nodePanel(idx: Index, id: string, result: ScenarioResult | null)
     ${n.kind === "company" ? `<button class="primary" data-offline="${esc(id)}">What if ${esc(n.name)} goes offline?</button>${impactLine}` : ""}
     ${prod ? `<h3>Production</h3><ul class="plain">${prod}</ul>` : n.kind === "company" ? `<p class="muted">No production locations recorded; country scenarios use the HQ.</p>` : ""}
     ${n.notes ? `<p class="notes">${esc(n.notes)}</p>` : ""}
+    ${n.market_positions?.length ? `<h3>Market position</h3>${positionsHtml(idx, n.market_positions)}` : ""}
     <h3>Suppliers <span class="count">${(idx.into.get(id) ?? []).length}</span></h3>
     ${edgeList(idx, idx.into.get(id) ?? [], "supplier", result)}
     <h3>Customers <span class="count">${(idx.out.get(id) ?? []).length}</span></h3>
@@ -128,7 +159,7 @@ export function edgePanel(idx: Index, id: string): string {
   if (!e) return "";
   return `
     <header class="panel-head">
-      <span class="stage-chip" style="--c:#475569">${esc(idx.input(e.input))}</span>
+      <span class="stage-chip" style="--c:#475569">${inputLink(idx, e.input)}</span>
       <h2><button class="link" data-node="${esc(e.supplier)}">${esc(idx.name(e.supplier))}</button>
         → <button class="link" data-node="${esc(e.buyer)}">${esc(idx.name(e.buyer))}</button></h2>
     </header>

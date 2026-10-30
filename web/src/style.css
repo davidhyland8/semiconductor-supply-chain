@@ -654,7 +654,7 @@ body.map-mode .graph {
 
 .share-list li {
   display: grid;
-  grid-template-columns: 1fr 70px 44px;
+  grid-template-columns: 1fr 70px 56px;
   gap: 8px;
   align-items: center;
   padding: 2px 0;
@@ -724,4 +724,14 @@ body.map-mode .graph {
 
 body.map-mode #fit {
   visibility: hidden;
+}
+
+details.desc {
+  font-size: 13px;
+  margin: 8px 0;
+}
+
+details.desc summary {
+  cursor: pointer;
+  color: var(--accent);
 }

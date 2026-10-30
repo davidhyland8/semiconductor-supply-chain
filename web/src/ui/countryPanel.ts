@@ -14,6 +14,21 @@ function companyRow(idx: Index, id: string, result: ScenarioResult | null, extra
     <button class="link" data-node="${esc(id)}">${esc(n.name)}</button>${extra ? ` <span class="muted">${esc(extra)}</span>` : ""}</li>`;
 }
 
+function marketHtml(idx: Index, code: string): string {
+  const companies = idx.doc.market.companies.filter((c) => c.hq_country === code);
+  if (companies.length === 0) return "";
+  const byStage = STAGES.map((s) => [s, companies.filter((c) => c.stage === s.id)] as const).filter(([, cs]) => cs.length);
+  return `<h3>Also headquartered here (ETO market data) <span class="count">${companies.length}</span></h3>
+    <p class="hint">Companies with ETO market shares but no sourced relationships yet, so not in the graph.</p>
+    ${byStage
+      .map(
+        ([s, cs]) => `<details class="edge-row"><summary><span class="swatch" style="background:${s.color}"></span>${esc(s.label)}
+          <span class="count">${cs.length}</span></summary>
+          <p>${cs.map((c) => `<button class="link" data-market="${esc(c.id)}">${esc(c.name)}</button>`).join(", ")}</p></details>`,
+      )
+      .join("")}`;
+}
+
 export function countryPanel(idx: Index, code: string, result: ScenarioResult | null): string {
   const { doc } = idx;
   const name = countryName(code);
@@ -72,5 +87,6 @@ export function countryPanel(idx: Index, code: string, result: ScenarioResult | 
             })
             .join("")}</ul>`
         : `<p class="muted">None recorded.</p>`
-    }`;
+    }
+    ${marketHtml(idx, code)}`;
 }

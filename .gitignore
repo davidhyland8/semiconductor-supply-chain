@@ -12,6 +12,9 @@ wheels/
 # Data
 data/raw/**/*
 !data/raw/**/.gitkeep
+# The pinned ETO snapshot is small and CC BY-NC 4.0 (see LICENSE-NOTE.md), so it is tracked.
+!data/raw/eto/
+!data/raw/eto/*
 data/sources/cache/
 
 # Web

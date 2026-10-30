@@ -25,3 +25,5 @@ Interactive graph of the chip supply chain with disruption scenarios. Read `docs
 - Nodes are one per business unit (`samsung-foundry`, not `samsung`).
 - Scenario logic exists in Python and TypeScript. Change both together and keep `tests/fixtures/scenarios/` passing in both.
 - Test fixtures use fictional companies, so tests never imply real relationships.
+- ETO market share is not a supply relationship. Don't create edges from it except through `inferred.py` rules with written reasoning.
+- ETO data is CC BY-NC 4.0: credit it wherever its figures are shown.

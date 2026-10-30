@@ -18,7 +18,13 @@ uv sync
 
 ### 1. ETO dataset
 
-`data/raw/eto/` holds a pinned copy of the ETO Advanced Semiconductor Supply Chain Dataset (commit in `SOURCE_COMMIT`, checksums in `SHA256SUMS`), from [georgetown-cset/eto-chip-explorer](https://github.com/georgetown-cset/eto-chip-explorer/tree/main/data).
+`data/raw/eto/` holds a pinned copy of the ETO Advanced Semiconductor Supply Chain Dataset (commit in `SOURCE_COMMIT`, checksums in `SHA256SUMS`), from [georgetown-cset/eto-chip-explorer](https://github.com/georgetown-cset/eto-chip-explorer/tree/main/data). It is licensed CC BY-NC 4.0 (see `data/raw/eto/LICENSE-NOTE.md`) and committed to the repo. Check it with:
+
+```bash
+cd data/raw/eto && shasum -a 256 -c SHA256SUMS
+```
+
+The build adds every ETO input, and every ETO company with market-share data, as a market catalogue. ETO companies that are also graph nodes are matched by `eto_provider_id` in `nodes.csv` or by `data/seed/eto_providers.csv`; `scg validate seed` flags name matches that are neither mapped nor skipped.
 
 ### 2. Source documents
 
@@ -80,6 +86,8 @@ npm run build    # static site in web/dist
 ```
 
 The app loads the latest `data/build/graph.v<N>.json`. It has a layered view (one column per stage, in supply order) and a force-directed network view. Click a company to see its suppliers and customers grouped by input, with each edge's evidence: the verbatim excerpt and source link, or the written reasoning for inferred edges. Edges are solid when disclosed, dashed when reported and dotted when inferred.
+
+Search also finds ETO inputs and ETO-only companies. An input's panel shows who sells it and their market shares; an ETO-only company's panel shows its market position and notes that it has no sourced relationships yet.
 
 The Map view shades each country by its share of a chosen stage (from the ETO dataset; assembly has no source yet) or, during a scenario, by how many of its companies are impacted. Click a country for its share of every stage, the companies headquartered or producing there, and a button to take it offline.
 

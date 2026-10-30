@@ -35,6 +35,59 @@ export interface Node extends GraphNode {
   production_countries?: Production[];
   upstream_count: number;
   downstream_count: number;
+  market_positions?: MarketPosition[];
+}
+
+// ETO market data (pipeline/src/scg/eto.py): what a company sells and its share.
+export interface MarketPosition {
+  input: string; // ETO input id
+  share: number | null;
+  year: string | null;
+  source: number | null; // index into Market.sources
+}
+
+export interface MarketCompany {
+  id: string;
+  name: string;
+  eto_provider_id: string;
+  hq_country?: string;
+  aliases: string[];
+  stage: string | null;
+  positions: MarketPosition[];
+}
+
+export interface EtoSupplier {
+  name: string;
+  share: number | null;
+  node?: string;
+  company?: string;
+}
+
+export interface EtoInput {
+  id: string;
+  name: string;
+  type: string;
+  stage: string | null;
+  description: string;
+  market_size: string | null;
+  source: string | null;
+  parent: string | null;
+  children: string[];
+  goes_into: string[];
+  graph_inputs: string[];
+  suppliers: EtoSupplier[];
+  country_shares: Record<string, number>;
+  company_hhi: number | null;
+  year: string | null;
+}
+
+export interface Market {
+  companies: MarketCompany[];
+  inputs: EtoInput[];
+  sources: string[];
+  skipped: { eto_provider_id: string; name: string; reason: string }[];
+  citation: string;
+  license: string;
 }
 
 export interface Edge extends GraphEdge {
@@ -49,6 +102,7 @@ export interface Input {
   id: string;
   name: string;
   stage: string;
+  eto_id?: string;
   description?: string;
 }
 
@@ -84,6 +138,7 @@ export interface GraphDoc {
   edges: Edge[];
   inputs: Input[];
   groups: Group[];
+  market: Market;
   analysis: {
     criticality: { companies: Impact[]; stages: Impact[]; countries: Impact[] };
     stage_country_shares: Record<string, StageShares>;

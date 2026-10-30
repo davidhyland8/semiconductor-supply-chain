@@ -18,7 +18,7 @@ applied-materials,Applied Materials,company,,equipment,equipment,US,Applied;AMAT
 lam-research,Lam Research,company,,equipment,equipment,US,Lam;Lam Research Corporation,LRCX,P111,
 tokyo-electron,Tokyo Electron,company,,equipment,equipment,JP,TEL;Tokyo Electron Limited,8035.T,P105,
 kla,KLA,company,,equipment,equipment,US,KLA Corporation;KLA-Tencor,KLAC,P118,
-advantest,Advantest,company,,equipment,equipment,JP,Advantest Corporation,6857.T,,
+advantest,Advantest,company,,equipment,equipment,JP,Advantest Corporation,6857.T,P175,
 shin-etsu,Shin-Etsu Chemical,company,,materials,wafers,JP,Shin-Etsu;Shin-Etsu Handotai;SEH,4063.T,P208,Also supplies photoresists
 sumco,SUMCO,company,,materials,wafers,JP,SUMCO Corporation,3436.T,P225,
 jsr,JSR,company,,materials,photoresist,JP,JSR Corporation,,P206,Taken private by JIC in 2024
@@ -52,9 +52,9 @@ arm-china,Arm China,company,,design_tools_ip,ip,CN,Arm Technology (China);Arm Ch
 realtek,Realtek,company,,chip_design,fabless,TW,Realtek Semiconductor,2379.TW,,
 novatek,Novatek Microelectronics,company,,chip_design,fabless,TW,Novatek,3034.TW,,
 carl-zeiss-smt,Carl Zeiss SMT,company,,equipment,equipment,DE,Zeiss SMT;Carl Zeiss SMT GmbH,,,Optics for ASML lithography systems
-teradyne,Teradyne,company,,equipment,equipment,US,"Teradyne, Inc.",TER,,
+teradyne,Teradyne,company,,equipment,equipment,US,"Teradyne, Inc.",TER,P176,
 soitec,Soitec,company,,materials,wafers,FR,Soitec S.A.,SOI.PA,,Silicon-on-insulator (SOI) wafers
-globalwafers,GlobalWafers,company,,materials,wafers,TW,GlobalWafers Co.,6488.TWO,,
+globalwafers,GlobalWafers,company,,materials,wafers,TW,GlobalWafers Co.,6488.TWO,P226,
 kinsus,Kinsus Interconnect Technology,company,,materials,substrates,TW,Kinsus;Kinsus Interconnect Technology Corporation,3189.TW,,
 nan-ya-pcb,Nan Ya PCB,company,,materials,substrates,TW,Nan Ya Printed Circuit Board Corporation,8046.TW,,
 kyec,King Yuan Electronics,company,,packaging_test,osat,TW,KYEC;King Yuan Electronics Company (KYEC),2449.TW,,Test services

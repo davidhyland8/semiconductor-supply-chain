@@ -12,7 +12,7 @@ from pathlib import Path
 
 import networkx as nx
 
-from scg import paths
+from scg import eto, paths
 from scg.analysis.concentration import input_concentration, stage_country_shares
 from scg.analysis.graph_metrics import chokepoints, criticality
 from scg.seed import _rows, load_edges, load_nodes
@@ -42,6 +42,8 @@ def graph_document(seed_dir: Path = paths.SEED_DIR, sources_dir: Path = paths.SO
     g = build_graph(seed_dir, sources_dir)
     sources = {r["id"]: r for r in _rows(sources_dir / "sources.csv")}
     simple = nx.DiGraph(g)
+    catalogue = eto.market(seed_dir)
+    positions = catalogue.pop("node_positions")
 
     nodes = []
     for nid, data in sorted(g.nodes(data=True)):
@@ -49,6 +51,7 @@ def graph_document(seed_dir: Path = paths.SEED_DIR, sources_dir: Path = paths.SO
             **data,
             "upstream_count": len(nx.ancestors(simple, nid)),
             "downstream_count": len(nx.descendants(simple, nid)),
+            **({"market_positions": positions[nid]} if nid in positions else {}),
         })
 
     edges = []
@@ -62,6 +65,7 @@ def graph_document(seed_dir: Path = paths.SEED_DIR, sources_dir: Path = paths.SO
         "edges": edges,
         "inputs": _rows(seed_dir / "inputs.csv"),
         "groups": _rows(seed_dir / "groups.csv"),
+        "market": catalogue,
         "analysis": {
             "chokepoints": chokepoints(edges),
             "criticality": criticality(nodes, edges),
@@ -100,6 +104,13 @@ def _changelog_entry(version: int, prev: dict | None, doc: dict) -> str:
             lines.append(f"- Removed {len(removed)} {key}: {listed(removed)}")
         if changed:
             lines.append(f"- Changed {len(changed)} {key}: {listed(changed)}")
+    if prev or doc.get("market"):
+        before = {c["id"] for c in (prev or {}).get("market", {}).get("companies", [])}
+        after = {c["id"] for c in doc.get("market", {}).get("companies", [])}
+        if after - before:
+            lines.append(f"- Added {len(after - before)} ETO market companies: {listed(after - before)}")
+        if before - after:
+            lines.append(f"- Removed {len(before - after)} ETO market companies: {listed(before - after)}")
     if prev:
         sections = sorted(k for k in doc.get("analysis", {}) if doc["analysis"][k] != prev.get("analysis", {}).get(k))
         if sections:

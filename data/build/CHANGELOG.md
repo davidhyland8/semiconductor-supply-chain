@@ -1,5 +1,11 @@
 # Graph build changelog
 
+## v3 (2026-10-30)
+
+63 nodes, 153 edges.
+- Changed 28 nodes: advantest, amd, amkor, applied-materials, arm, asml, cadence, carl-zeiss-smt, entegris, globalfoundries, globalwafers, ibiden, intel-foundry, intel-products, jsr, kla, lam-research, linde, nvidia, shin-etsu …
+- Added 253 ETO market companies: accotest, accretech, achronix, acm-research, aehr-test-systems, aemulus, air-liquide, air-products, aixtron, akm, alent, amec, anji, ansys, ap-systems, arcas-da, asm-international, asm-pacific, asti, avantor …
+
 ## v2 (2026-10-30)
 
 63 nodes, 153 edges.

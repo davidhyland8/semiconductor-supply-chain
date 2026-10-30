@@ -6,11 +6,13 @@ import { MapView } from "./map/mapView";
 import { propagate } from "./scenario/propagate";
 import type { Scenario, ScenarioResult } from "./scenario/types";
 import { countryPanel } from "./ui/countryPanel";
+import { find, searchEntries } from "./search";
 import { esc } from "./ui/html";
+import { etoInputPanel, marketCompanyPanel } from "./ui/marketPanel";
 import { Index, edgePanel, nodePanel } from "./ui/panel";
 import { Sidebar } from "./ui/sidebar";
 
-type Selection = { kind: "node" | "edge" | "country"; id: string } | null;
+type Selection = { kind: "node" | "edge" | "country" | "market" | "input"; id: string } | null;
 
 function aboutPanel(doc: GraphDoc): string {
   const count = (s: string) => doc.edges.filter((e) => e.strength === s).length;
@@ -27,8 +29,10 @@ function aboutPanel(doc: GraphDoc): string {
         <strong>${count("inferred")}</strong> inferred from market shares, with the reasoning written down</li>
     </ul>
     <p>Click a company to see its suppliers, customers and the source behind each link, or take something offline from the left to see what breaks.</p>
+    <p>Search also covers ${doc.market.companies.length} more companies and ${doc.market.inputs.length} inputs from the ETO
+      dataset, with their market shares. Those companies have no sourced relationships yet, so they aren't in the graph.</p>
     <p class="muted">Graph build v${esc(doc.version)} (${esc(doc.built)}). Public sources only: company filings,
-      press releases, news and the ETO Advanced Semiconductor Supply Chain Dataset.</p>`;
+      press releases, news and the ${esc(doc.market.citation)} (${esc(doc.market.license)}).</p>`;
 }
 
 async function main() {
@@ -46,15 +50,20 @@ async function main() {
         ? nodePanel(idx, selection.id, result)
         : selection.kind === "edge"
           ? edgePanel(idx, selection.id)
-          : countryPanel(idx, selection.id, result);
+          : selection.kind === "market"
+            ? marketCompanyPanel(idx, selection.id)
+            : selection.kind === "input"
+              ? etoInputPanel(idx, selection.id)
+              : countryPanel(idx, selection.id, result);
     panelEl.scrollTop = 0;
   };
 
   const select = (sel: Selection, zoom = false) => {
     selection = sel;
-    view.select(sel && sel.kind !== "country" ? { kind: sel.kind, id: sel.id } : null);
+    const inGraph = sel && (sel.kind === "node" || sel.kind === "edge") ? { kind: sel.kind, id: sel.id } : null;
+    view.select(inGraph);
     map.select(sel?.kind === "country" ? sel.id : null);
-    if (zoom && sel && sel.kind !== "country") view.fitTo(sel.id);
+    if (zoom && inGraph) view.fitTo(inGraph.id);
     renderPanel();
   };
 
@@ -90,6 +99,8 @@ async function main() {
     const offline = t.closest<HTMLElement>("[data-offline]");
     const country = t.closest<HTMLElement>("[data-country]");
     const countryOffline = t.closest<HTMLElement>("[data-offline-country]");
+    const marketLink = t.closest<HTMLElement>("[data-market]");
+    const inputLink = t.closest<HTMLElement>("[data-eto-input]");
     if (nodeLink) {
       ev.preventDefault();
       select({ kind: "node", id: nodeLink.dataset.node! }, true);
@@ -99,6 +110,10 @@ async function main() {
       sidebar.setScenario({ countries: [countryOffline.dataset.offlineCountry!] });
     } else if (country) {
       select({ kind: "country", id: country.dataset.country! });
+    } else if (marketLink) {
+      select({ kind: "market", id: marketLink.dataset.market! });
+    } else if (inputLink) {
+      select({ kind: "input", id: inputLink.dataset.etoInput! });
     }
   });
 
@@ -113,15 +128,11 @@ async function main() {
   document.getElementById("fit")!.addEventListener("click", () => view.fit());
 
   const search = document.getElementById("search") as HTMLInputElement;
-  document.getElementById("node-names")!.innerHTML = doc.nodes
-    .map((n) => `<option value="${esc(n.name)}"></option>`)
-    .join("");
+  const entries = searchEntries(doc);
+  document.getElementById("node-names")!.innerHTML = entries.map((e) => `<option value="${esc(e.label)}"></option>`).join("");
   search.addEventListener("change", () => {
-    const q = search.value.trim().toLowerCase();
-    const hit =
-      doc.nodes.find((n) => n.name.toLowerCase() === q) ??
-      doc.nodes.find((n) => [n.name, ...(n.aliases ?? []), n.ticker ?? ""].some((s) => s.toLowerCase().includes(q)));
-    if (q && hit) select({ kind: "node", id: hit.id }, true);
+    const hit = find(entries, search.value);
+    if (hit) select(hit, true);
   });
 
   view.relayout();

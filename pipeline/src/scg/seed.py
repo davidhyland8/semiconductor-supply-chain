@@ -8,7 +8,7 @@ import csv
 from collections import Counter
 from pathlib import Path
 
-from scg import paths
+from scg import eto, paths
 from scg.schemas import validator
 from scg.validate import Report, normalise, read_ids
 
@@ -174,4 +174,5 @@ def validate_seed(
     for (s, b, i), n in seen_triples.items():
         if n > 1:
             report.errors.append(f"{n} edges for the same supplier/buyer/input: {s} -> {b} ({i})")
+    report.errors.extend(eto.check_mapping(seed_dir))
     return report

@@ -1,0 +1,5 @@
+eto_provider_id,eto_input_id,node_id,action,reason
+P35,,,skip,"ETO's 'Samsung' covers Samsung Electronics and its affiliates; its substrate and photomask positions can't be attributed to one business unit from this data (substrates are likely Samsung Electro-Mechanics, a separate company)."
+P187,,siemens-eda,map,Mentor Graphics was acquired by Siemens in 2017 and renamed Siemens EDA in 2021.
+P9,N33,intel-foundry,map,"Intel's photomasks are made by its captive mask operation for its own fabs, so the position belongs to the foundry unit, not Intel Products."
+P98,,carl-zeiss-smt,map,"ETO's 'Zeiss' position is photomask inspection and repair tools, made by Zeiss's Semiconductor Mask Solutions business, which is part of the Carl Zeiss SMT segment."
