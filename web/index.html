@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Semiconductor Supply Chain Map</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>Semiconductor Supply Chain Map</h1>
+      <input id="search" type="search" list="node-names" placeholder="Find a company…" aria-label="Find a company" />
+      <datalist id="node-names"></datalist>
+      <div class="segmented" role="group" aria-label="Layout">
+        <button data-mode="layered" aria-pressed="true">By stage</button>
+        <button data-mode="force" aria-pressed="false">Network</button>
+      </div>
+      <button id="fit" title="Fit graph to screen">Fit</button>
+    </header>
+    <main class="layout">
+      <aside id="sidebar" class="sidebar"></aside>
+      <div id="graph" class="graph"></div>
+      <aside id="panel" class="panel"></aside>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

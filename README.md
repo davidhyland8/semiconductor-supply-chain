@@ -69,6 +69,20 @@ uv run scg build
 
 This writes `data/build/graph.v<N>.json`: nodes, edges with evidence, inputs and precomputed analysis (chokepoints, single-company/stage/country criticality, ETO concentration, country share per stage). A new version is written only when content changes, and `data/build/CHANGELOG.md` lists what was added, removed or changed.
 
+## Web app
+
+Requires Node.js.
+
+```bash
+cd web && npm install
+npm run dev      # http://localhost:5173
+npm run build    # static site in web/dist
+```
+
+The app loads the latest `data/build/graph.v<N>.json`. It has a layered view (one column per stage, in supply order) and a force-directed network view. Click a company to see its suppliers and customers grouped by input, with each edge's evidence: the verbatim excerpt and source link, or the written reasoning for inferred edges. Edges are solid when disclosed, dashed when reported and dotted when inferred.
+
+Scenarios take companies, countries or stages offline. The TypeScript engine runs in the browser, colours each node as offline, fully impacted or partially impacted, and explains why. Stage, country and evidence-strength filters only hide elements; scenarios always run on the full graph.
+
 ## Tests
 
 ```bash
