@@ -1,0 +1,132 @@
+{
+  "description": "How stage and country scenarios choose their starting nodes. Fictional companies. Nodes absent from expected must end ok.",
+  "cases": [
+    {
+      "name": "stage offline takes out every node in the stage",
+      "nodes": [
+        {"id": "litho", "stage": "equipment"},
+        {"id": "etch", "stage": "equipment"},
+        {"id": "fab", "stage": "fabrication"},
+        {"id": "designer", "stage": "chip_design"}
+      ],
+      "edges": [
+        {"supplier": "litho", "buyer": "fab", "input": "scanners", "has_alternatives": "unknown"},
+        {"supplier": "etch", "buyer": "fab", "input": "etchers", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"stages": ["equipment"]},
+      "expected": {"litho": "offline", "etch": "offline", "fab": "full"},
+      "expected_rules": {"litho": ["stage_offline"]}
+    },
+    {
+      "name": "country offline: sole, primary and majority producers go offline",
+      "nodes": [
+        {"id": "only-tw", "stage": "fabrication", "hq_country": "TW",
+         "production_countries": [{"country": "TW"}]},
+        {"id": "primary-tw", "stage": "fabrication", "hq_country": "TW",
+         "production_countries": [{"country": "TW", "primary": true}, {"country": "US"}, {"country": "JP"}]},
+        {"id": "majority-tw", "stage": "packaging_test", "hq_country": "US",
+         "production_countries": [{"country": "TW", "share": 0.6}, {"country": "MY", "share": 0.4}]},
+        {"id": "elsewhere", "stage": "fabrication", "hq_country": "TW",
+         "production_countries": [{"country": "US"}]}
+      ],
+      "edges": [],
+      "scenario": {"countries": ["TW"]},
+      "expected": {"only-tw": "offline", "primary-tw": "offline", "majority-tw": "offline"},
+      "expected_rules": {"only-tw": ["country_offline"]}
+    },
+    {
+      "name": "country offline: a minor or unquantified site makes the node partial",
+      "nodes": [
+        {"id": "minor-share", "stage": "fabrication", "hq_country": "US",
+         "production_countries": [{"country": "US", "share": 0.8}, {"country": "TW", "share": 0.2}]},
+        {"id": "one-of-several", "stage": "packaging_test", "hq_country": "US",
+         "production_countries": [{"country": "MY"}, {"country": "TW"}, {"country": "PH"}]},
+        {"id": "secondary", "stage": "fabrication", "hq_country": "KR",
+         "production_countries": [{"country": "KR", "primary": true}, {"country": "TW"}]}
+      ],
+      "edges": [],
+      "scenario": {"countries": ["TW"]},
+      "expected": {"minor-share": "partial", "one-of-several": "partial", "secondary": "partial"},
+      "expected_rules": {"minor-share": ["country_partial"]}
+    },
+    {
+      "name": "country offline: shares in several offline countries add up",
+      "nodes": [
+        {"id": "split", "stage": "fabrication", "hq_country": "US",
+         "production_countries": [{"country": "TW", "share": 0.3}, {"country": "KR", "share": 0.3}, {"country": "US", "share": 0.4}]}
+      ],
+      "edges": [],
+      "scenario": {"countries": ["TW", "KR"]},
+      "expected": {"split": "offline"}
+    },
+    {
+      "name": "country offline: nodes without production countries fall back to HQ",
+      "nodes": [
+        {"id": "hq-only", "stage": "chip_design", "hq_country": "TW"},
+        {"id": "hq-elsewhere", "stage": "chip_design", "hq_country": "US"}
+      ],
+      "edges": [],
+      "scenario": {"countries": ["TW"]},
+      "expected": {"hq-only": "offline"},
+      "expected_rules": {"hq-only": ["country_offline_hq_fallback"]}
+    },
+    {
+      "name": "country offline: product categories have no location and are only hit through suppliers",
+      "nodes": [
+        {"id": "oem", "stage": "assembly_end_products", "hq_country": "TW",
+         "production_countries": [{"country": "TW"}]},
+        {"id": "phones", "stage": "assembly_end_products", "kind": "product_category"}
+      ],
+      "edges": [
+        {"supplier": "oem", "buyer": "phones", "input": "devices", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"countries": ["TW"]},
+      "expected": {"oem": "offline", "phones": "full"}
+    },
+    {
+      "name": "a country-partial supplier degrades its buyers",
+      "nodes": [
+        {"id": "fab", "stage": "fabrication", "hq_country": "US",
+         "production_countries": [{"country": "US", "primary": true}, {"country": "TW"}]},
+        {"id": "designer", "stage": "chip_design", "hq_country": "US"}
+      ],
+      "edges": [
+        {"supplier": "fab", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"countries": ["TW"]},
+      "expected": {"fab": "partial", "designer": "partial"},
+      "expected_rules": {"designer": ["degraded_supplier"]}
+    },
+    {
+      "name": "combined company and country scenario",
+      "nodes": [
+        {"id": "fab-tw", "stage": "fabrication", "hq_country": "TW",
+         "production_countries": [{"country": "TW"}]},
+        {"id": "fab-kr", "stage": "fabrication", "hq_country": "KR",
+         "production_countries": [{"country": "KR"}]},
+        {"id": "designer", "stage": "chip_design", "hq_country": "US"}
+      ],
+      "edges": [
+        {"supplier": "fab-tw", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"},
+        {"supplier": "fab-kr", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"companies": ["fab-kr"], "countries": ["TW"]},
+      "expected": {"fab-tw": "offline", "fab-kr": "offline", "designer": "full"}
+    },
+    {
+      "name": "a partial seed can still be made full by propagation",
+      "nodes": [
+        {"id": "gas", "stage": "materials", "hq_country": "JP",
+         "production_countries": [{"country": "JP"}]},
+        {"id": "fab", "stage": "fabrication", "hq_country": "US",
+         "production_countries": [{"country": "US", "primary": true}, {"country": "JP"}]}
+      ],
+      "edges": [
+        {"supplier": "gas", "buyer": "fab", "input": "neon", "has_alternatives": "no"}
+      ],
+      "scenario": {"countries": ["JP"]},
+      "expected": {"gas": "offline", "fab": "full"},
+      "expected_rules": {"fab": ["country_partial", "all_suppliers_lost"]}
+    }
+  ]
+}

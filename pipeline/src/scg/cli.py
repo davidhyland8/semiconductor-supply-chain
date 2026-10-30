@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 from scg import paths
+from scg.build import write_build
 from scg.collect import collect_sec, collect_url
 from scg.inferred import add_inferred
 from scg.promote import promote
@@ -45,9 +46,15 @@ def _promote(args: argparse.Namespace) -> int:
     return 0
 
 
+def _build(args: argparse.Namespace) -> int:
+    path, written = write_build()
+    print(f"{'wrote' if written else 'unchanged'}: {path}")
+    return 0
+
+
 def _add_inferred(args: argparse.Namespace) -> int:
     added, skipped = add_inferred()
-    print(f"inferred edges: +{added} added, {skipped} skipped (already sourced)")
+    print(f"inferred edges: {added} regenerated, {skipped} skipped (already covered by a stated source)")
     return 0
 
 
@@ -99,6 +106,9 @@ def main(argv: list[str] | None = None) -> int:
 
     inf = sub.add_parser("add-inferred", help="write the curated inferred edges in scg/inferred.py to data/seed")
     inf.set_defaults(func=_add_inferred)
+
+    bld = sub.add_parser("build", help="build data/build/graph.v<N>.json")
+    bld.set_defaults(func=_build)
 
     args = parser.parse_args(argv)
     return args.func(args)

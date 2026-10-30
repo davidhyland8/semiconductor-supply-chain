@@ -38,12 +38,16 @@ EQUIPMENT_RULES = [
      "ASML holds 99.3% of ArF immersion and 94.4% of ArF dry lithography tools (ETO/TechInsights 2025); this fab's 28nm-and-below nodes need ArF immersion scanners."),
     ("tokyo-electron", FABS, "resist-processing-tools", "unknown",
      "Tokyo Electron holds 92.6% of resist processing (coater/developer) tools (ETO/TechInsights 2025); every lithography line needs a track, so this fab almost certainly uses TEL tracks."),
-    ("applied-materials", FABS, "deposition-tools", "unknown",
-     "Applied Materials holds 41.2% of deposition tools overall, including 82.4% of PVD and 47.0% of CVD (ETO/TechInsights 2025); a major fab is very unlikely to run without Applied deposition tools."),
-    ("kla", FABS, "process-control-tools", "unknown",
-     "KLA holds 56.8% of process control tools and 85.9% of defect inspection tools (ETO/TechInsights 2025); a major fab is very unlikely to run without KLA inspection."),
-    ("lam-research", ["samsung-foundry", "intel-foundry", "smic", "umc", "globalfoundries"], "etch-clean-tools", "unknown",
-     "Lam Research holds 41.1% of dry etch tools (ETO/TechInsights 2025); a major fab is very unlikely to run without Lam etch tools. Lam's 10-K names its largest customers but not these."),
+    ("applied-materials", FABS, "deposition-tools", "yes",
+     "Applied Materials holds 41.2% of deposition tools overall, including 82.4% of PVD and 47.0% of CVD (ETO/TechInsights 2025); a major fab is very unlikely to run without Applied deposition tools. Alternatives exist: Lam 16.9%, TEL 9.7% of deposition."),
+    ("lam-research", FABS, "deposition-tools", "yes",
+     "Lam Research holds 16.9% of deposition tools, including 28.5% of CVD (ETO/TechInsights 2025), making it the second supplier of deposition tools to major fabs. Alternatives exist: Applied 41.2%, TEL 9.7%."),
+    ("kla", FABS, "process-control-tools", "yes",
+     "KLA holds 56.8% of process control tools and 85.9% of defect inspection tools (ETO/TechInsights 2025); a major fab is very unlikely to run without KLA inspection. Alternatives exist for most tool types (Applied 11.2% of process control)."),
+    ("lam-research", ["samsung-foundry", "intel-foundry", "smic", "umc", "globalfoundries"], "etch-clean-tools", "yes",
+     "Lam Research holds 41.1% of dry etch tools (ETO/TechInsights 2025); a major fab is very unlikely to run without Lam etch tools. Lam's 10-K names its largest customers but not these. Alternatives exist: TEL 22.1%, Applied 12.7% of etch and clean."),
+    ("tokyo-electron", FABS, "etch-clean-tools", "yes",
+     "Tokyo Electron holds 23.4% of dry etch tools and 22.1% of etch and clean tools (ETO/TechInsights 2025), the second supplier after Lam. Alternatives exist: Lam 36.7%, Applied 12.7%."),
 ]
 
 JSR_SOURCE = "jsr-tsmc-taiwan-resist-2026"
@@ -89,7 +93,14 @@ def add_inferred() -> tuple[int, int]:
 
     register_sources([ETO_SOURCE_ROW])
     edges = {r["id"]: r for r in _rows(paths.SEED_DIR / "edges.csv")}
-    evidence = _rows(paths.SEED_DIR / "evidence.csv")
+    # These rules own their evidence: drop it (and edges left without evidence) and regenerate.
+    owned = {ETO_SOURCE, JSR_SOURCE}
+    evidence = [
+        e for e in _rows(paths.SEED_DIR / "evidence.csv")
+        if not (e["strength"] == "inferred" and e.get("source_id") in owned)
+    ]
+    still_evidenced = {e["edge_id"] for e in evidence}
+    edges = {eid: e for eid, e in edges.items() if eid in still_evidenced}
     existing_evidence = {(e["edge_id"], e.get("source_id", "")) for e in evidence}
     triples = {(e["supplier"], e["buyer"], e["input"]) for e in edges.values()}
     added = skipped = 0

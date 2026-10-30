@@ -4,3 +4,6 @@ tsmc-20f-2025,2,reject,,,,,"Platform revenue share is market exposure, not a sup
 ase-20f-2025,9,reject,,,,,Minor back-end tool vendor; outside seed scope
 ase-20f-2025,10,reject,,,,,Minor back-end tool vendor; outside seed scope
 ase-20f-2025,11,reject,,,,,Minor back-end tool vendor; outside seed scope
+entegris-10k-2025,1,accept,,,,yes,"Entegris products (filters, CMP consumables, specialty chemicals) are multi-sourced: ETO lists 18 CMP-material and 13 wet-chemical providers"
+globalfoundries-20f-2025,2,accept,,,,yes,"Same filing: Soitec is 71% of GF's SOI wafer spend, so the remaining 29% comes from other suppliers"
+kla-10k-2026,1,accept,,,,yes,"KLA holds 56.8% of process control tools (ETO/TechInsights 2025); alternatives exist for most tool types (Applied 11.2%), as for KLA's inferred edges to other fabs"

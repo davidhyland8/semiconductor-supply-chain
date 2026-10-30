@@ -19,3 +19,6 @@ web/node_modules/
 web/dist/
 .DS_Store
 .*.lock
+
+# Versioned graph builds are tracked (overrides build/ above)
+!data/build/

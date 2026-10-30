@@ -2,13 +2,15 @@
 
 import pytest
 
-from scg.seed import load_edges, load_nodes, parse_production_countries, validate_seed
+from scg.seed import load_edges, load_nodes, validate_seed
 
-NODES = """id,name,kind,parent,stage,role,hq_country,production_countries,aliases,ticker,eto_provider_id,notes
-acme-litho,Acme Litho,company,,equipment,equipment,NL,NL*,Acme;Acme Litho BV,,P88,
-beta-fab,Beta Fab,company,beta-group,fabrication,foundry,TW,TW:0.8;US:0.2,,,,
-gadgets,Gadgets,product_category,,assembly_end_products,end_market,,,,,,
+NODES = """id,name,kind,parent,stage,role,hq_country,aliases,ticker,eto_provider_id,notes
+acme-litho,Acme Litho,company,,equipment,equipment,NL,Acme;Acme Litho BV,,P88,
+beta-fab,Beta Fab,company,beta-group,fabrication,foundry,TW,,,,
+gadgets,Gadgets,product_category,,assembly_end_products,end_market,,,,,
 """
+PRODUCTION_HEADER = "node_id,country,share,primary,source_id,excerpt,locator,as_of,notes\n"
+DOC = "We purchase all of our EUV scanners from Acme Litho. Our fabs are in Hsinchu, Taiwan and Arizona, USA.\n"
 EDGE_HEADER = "id,supplier,buyer,input,has_alternatives,weight_value,weight_metric,weight_basis,as_of,notes\n"
 EVIDENCE_HEADER = "edge_id,source_id,url,excerpt,locator,strength,reasoning\n"
 
@@ -22,7 +24,7 @@ def repo(tmp_path):
     (seed / "groups.csv").write_text("id,name,hq_country\nbeta-group,Beta Group,TW\n")
     (seed / "inputs.csv").write_text("id,name\neuv-lithography,EUV\nlogic-foundry-leading,Foundry\n")
     (tmp_path / "sources" / "sources.csv").write_text("id,url\nbeta-20f-2025,https://example.com\n")
-    (cache / "beta-20f-2025.txt").write_text("We purchase all of our EUV scanners from Acme Litho.\n")
+    (cache / "beta-20f-2025.txt").write_text(DOC)
     return tmp_path
 
 
@@ -36,19 +38,35 @@ GOOD_EDGE = "acme-beta-euv,acme-litho,beta-fab,euv-lithography,no,0.9,share_of_b
 GOOD_EV = "acme-beta-euv,beta-20f-2025,,We purchase all of our EUV scanners from Acme Litho.,Item 4,disclosed,\n"
 
 
-def test_parse_production_countries():
-    assert parse_production_countries("TW*;US:0.2;JP") == [
-        {"country": "TW", "primary": True},
-        {"country": "US", "share": 0.2},
-        {"country": "JP"},
-    ]
+PROD_TW = "beta-fab,TW,0.8,true,beta-20f-2025,Our fabs are in Hsinchu,Item 2,2025,\n"
+PROD_US = "beta-fab,US,0.2,,beta-20f-2025,Our fabs are in Hsinchu,Item 2,2025,\n"
 
 
-def test_load_nodes_splits_lists(repo):
+def test_load_nodes_splits_lists_and_merges_production(repo):
+    (repo / "seed" / "production.csv").write_text(PRODUCTION_HEADER + PROD_TW + PROD_US)
     nodes = {n["id"]: n for n in load_nodes(repo / "seed")}
     assert nodes["acme-litho"]["aliases"] == ["Acme", "Acme Litho BV"]
-    assert nodes["beta-fab"]["production_countries"][0] == {"country": "TW", "share": 0.8}
+    assert nodes["beta-fab"]["production_countries"] == [
+        {"country": "TW", "share": 0.8, "primary": True, "source_id": "beta-20f-2025", "basis": "Item 2", "as_of": "2025"},
+        {"country": "US", "share": 0.2, "source_id": "beta-20f-2025", "basis": "Item 2", "as_of": "2025"},
+    ]
+    assert "production_countries" not in nodes["acme-litho"]
     assert "hq_country" not in nodes["gadgets"]
+
+
+def test_production_rows_validated(repo):
+    bad = (
+        "beta-fab,TW,0.8,,beta-20f-2025,Our fabs are in Singapore,Item 2,2025,\n"
+        "beta-fab,US,0.4,,beta-20f-2025,Our fabs are in Hsinchu,Item 2,2025,\n"
+        "ghost,US,,,beta-20f-2025,Our fabs are in Hsinchu,Item 2,2025,\n"
+        "beta-fab,JP,,,,,,,\n"
+    )
+    (repo / "seed" / "production.csv").write_text(PRODUCTION_HEADER + bad)
+    errors = write(repo, GOOD_EDGE, GOOD_EV).errors
+    assert any("not found verbatim" in e for e in errors)
+    assert any("sum to 1.20" in e for e in errors)
+    assert any("ghost" in e and "not in nodes.csv" in e for e in errors)
+    assert any("needs source_id and excerpt" in e for e in errors)
 
 
 def test_valid_seed(repo):

@@ -30,30 +30,34 @@ def _clean(d: dict) -> dict:
     return {k: v for k, v in d.items() if v not in ("", None, [])}
 
 
-def parse_production_countries(cell: str) -> list[dict]:
-    """'TW*;US:0.1;JP' -> [{country: TW, primary: True}, {country: US, share: 0.1}, {country: JP}]."""
-    out = []
-    for part in filter(None, (p.strip() for p in cell.split(";"))):
-        entry: dict = {}
-        if ":" in part:
-            part, share = part.split(":", 1)
-            entry["share"] = float(share)
-        if part.endswith("*"):
-            part = part[:-1]
-            entry["primary"] = True
-        out.append({"country": part, **entry})
+PRODUCTION_FIELDS = ["node_id", "country", "share", "primary", "source_id", "excerpt", "locator", "as_of", "notes"]
+
+
+def load_production(seed_dir: Path = paths.SEED_DIR) -> dict[str, list[dict]]:
+    """data/seed/production.csv -> {node_id: [production_countries entries]}."""
+    out: dict[str, list[dict]] = {}
+    for row in _rows(seed_dir / "production.csv"):
+        entry = _clean({
+            "country": row["country"],
+            "share": float(row["share"]) if row.get("share") else None,
+            "primary": row.get("primary", "").lower() == "true" or None,
+            "source_id": row.get("source_id"),
+            "basis": "; ".join(filter(None, [row.get("locator"), row.get("notes")])),
+            "as_of": row.get("as_of"),
+        })
+        out.setdefault(row["node_id"], []).append(entry)
     return out
 
 
 def load_nodes(seed_dir: Path = paths.SEED_DIR) -> list[dict]:
+    production = load_production(seed_dir)
     nodes = []
     for row in _rows(seed_dir / "nodes.csv"):
         node = _clean(dict(row))
-        node.pop("production_countries", None)
         if row.get("aliases"):
             node["aliases"] = [a.strip() for a in row["aliases"].split(";") if a.strip()]
-        if row.get("production_countries"):
-            node["production_countries"] = parse_production_countries(row["production_countries"])
+        if row["id"] in production:
+            node["production_countries"] = production[row["id"]]
         nodes.append(node)
     return nodes
 
@@ -111,6 +115,34 @@ def validate_seed(
             report.errors.append(f"node {node['id']}: parent {node['parent']!r} not in groups.csv")
 
     texts: dict[str, str | None] = {}
+
+    def check_excerpt(label: str, sid: str, excerpt: str) -> None:
+        if sid not in texts:
+            cached = cache_dir / f"{sid}.txt"
+            texts[sid] = normalise(cached.read_text()) if cached.exists() else None
+        if texts[sid] is None:
+            report.warnings.append(f"{label}: no cached text for {sid!r}; excerpt not verified")
+        elif normalise(excerpt) not in texts[sid]:
+            report.errors.append(f"{label}: excerpt not found verbatim in {sid}.txt")
+
+    shares: Counter = Counter()
+    for i, row in enumerate(_rows(seed_dir / "production.csv"), start=2):
+        label = f"production.csv:{i} ({row.get('node_id')}/{row.get('country')})"
+        if row["node_id"] not in node_ids:
+            report.errors.append(f"{label}: node not in nodes.csv")
+        if not row.get("source_id") or not row.get("excerpt"):
+            report.errors.append(f"{label}: needs source_id and excerpt")
+            continue
+        if row["source_id"] not in source_ids:
+            report.errors.append(f"{label}: source_id {row['source_id']!r} not in sources.csv")
+            continue
+        check_excerpt(label, row["source_id"], row["excerpt"])
+        if row.get("share"):
+            shares[row["node_id"]] += float(row["share"])
+    for nid, total in shares.items():
+        if total > 1.001:
+            report.errors.append(f"production.csv: shares for {nid} sum to {total:.2f}")
+
     seen_triples: Counter = Counter()
     for edge in edges:
         report.records += 1
@@ -136,15 +168,8 @@ def validate_seed(
             if sid not in source_ids:
                 report.errors.append(f"{label}: source_id {sid!r} not in sources.csv")
                 continue
-            if "excerpt" not in ev:
-                continue
-            if sid not in texts:
-                cached = cache_dir / f"{sid}.txt"
-                texts[sid] = normalise(cached.read_text()) if cached.exists() else None
-            if texts[sid] is None:
-                report.warnings.append(f"{label}: no cached text for {sid!r}; excerpt not verified")
-            elif normalise(ev["excerpt"]) not in texts[sid]:
-                report.errors.append(f"{label}: excerpt not found verbatim in {sid}.txt")
+            if "excerpt" in ev:
+                check_excerpt(label, sid, ev["excerpt"])
 
     for (s, b, i), n in seen_triples.items():
         if n > 1:

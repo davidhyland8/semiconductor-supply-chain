@@ -1,0 +1,8 @@
+# Graph build changelog
+
+## v1 (2026-10-30)
+
+63 nodes, 153 edges.
+- Added 63 nodes: advantest, ai-servers, amd, amkor, apple-devices, apple-silicon, applied-materials, arm, arm-china, ase, asml, automotive, broadcom, cadence, carl-zeiss-smt, entegris, fabrinet, foxconn, globalfoundries, globalwafers …
+- Added 153 edges: advantest-to-ase-test-tools, amd-to-pcs-cpus, amkor-to-apple-silicon-osat-services, amkor-to-broadcom-osat-services, amkor-to-qualcomm-osat-services, apple-devices-to-pcs-end-devices, apple-devices-to-smartphones-end-devices, apple-silicon-to-apple-devices-mobile-socs, applied-materials-to-globalfoundries-deposition-tools, applied-materials-to-intel-foundry-deposition-tools, applied-materials-to-micron-deposition-tools, applied-materials-to-samsung-foundry-deposition-tools, applied-materials-to-samsung-memory-deposition-tools, applied-materials-to-sk-hynix-deposition-tools, applied-materials-to-smic-deposition-tools, applied-materials-to-tsmc-deposition-tools, applied-materials-to-umc-deposition-tools, arm-to-apple-silicon-core-ip, arm-to-arm-china-core-ip, arm-to-mediatek-core-ip …
+

@@ -1,0 +1,208 @@
+{
+  "description": "Propagation rules from docs/methodology.md. Fictional companies. Nodes absent from expected must end ok. expected_rules lists rules that must appear among a node's causes.",
+  "cases": [
+    {
+      "name": "single supplier chain goes fully down",
+      "nodes": [
+        {"id": "litho", "stage": "equipment"},
+        {"id": "fab", "stage": "fabrication"},
+        {"id": "designer", "stage": "chip_design"}
+      ],
+      "edges": [
+        {"supplier": "litho", "buyer": "fab", "input": "scanners", "has_alternatives": "unknown"},
+        {"supplier": "fab", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"companies": ["litho"]},
+      "expected": {"litho": "offline", "fab": "full", "designer": "full"},
+      "expected_rules": {"fab": ["all_suppliers_lost"], "designer": ["all_suppliers_lost"]}
+    },
+    {
+      "name": "losing one of two suppliers is partial, and partial passes downstream",
+      "nodes": [
+        {"id": "fab-a", "stage": "fabrication"},
+        {"id": "fab-b", "stage": "fabrication"},
+        {"id": "designer", "stage": "chip_design"},
+        {"id": "oem", "stage": "assembly_end_products"}
+      ],
+      "edges": [
+        {"supplier": "fab-a", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"},
+        {"supplier": "fab-b", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"},
+        {"supplier": "designer", "buyer": "oem", "input": "chips", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"companies": ["fab-a"]},
+      "expected": {"fab-a": "offline", "designer": "partial", "oem": "partial"},
+      "expected_rules": {"designer": ["some_suppliers_lost"], "oem": ["degraded_supplier"]}
+    },
+    {
+      "name": "losing every supplier of an input is full",
+      "nodes": [
+        {"id": "fab-a", "stage": "fabrication"},
+        {"id": "fab-b", "stage": "fabrication"},
+        {"id": "designer", "stage": "chip_design"}
+      ],
+      "edges": [
+        {"supplier": "fab-a", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"},
+        {"supplier": "fab-b", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"companies": ["fab-a", "fab-b"]},
+      "expected": {"fab-a": "offline", "fab-b": "offline", "designer": "full"}
+    },
+    {
+      "name": "losing every known supplier is only partial when each says alternatives exist",
+      "nodes": [
+        {"id": "chem", "stage": "materials"},
+        {"id": "fab", "stage": "fabrication"},
+        {"id": "designer", "stage": "chip_design"}
+      ],
+      "edges": [
+        {"supplier": "chem", "buyer": "fab", "input": "slurry", "has_alternatives": "yes"},
+        {"supplier": "fab", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"companies": ["chem"]},
+      "expected": {"chem": "offline", "fab": "partial", "designer": "partial"},
+      "expected_rules": {"fab": ["alternatives_unrecorded"], "designer": ["degraded_supplier"]}
+    },
+    {
+      "name": "alternatives_unrecorded needs every lost edge to say yes",
+      "nodes": [
+        {"id": "chem-a", "stage": "materials"},
+        {"id": "chem-b", "stage": "materials"},
+        {"id": "fab", "stage": "fabrication"}
+      ],
+      "edges": [
+        {"supplier": "chem-a", "buyer": "fab", "input": "slurry", "has_alternatives": "yes"},
+        {"supplier": "chem-b", "buyer": "fab", "input": "slurry", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"companies": ["chem-a", "chem-b"]},
+      "expected": {"chem-a": "offline", "chem-b": "offline", "fab": "full"},
+      "expected_rules": {"fab": ["all_suppliers_lost"]}
+    },
+    {
+      "name": "a lost sole-source edge is full even when other suppliers exist",
+      "nodes": [
+        {"id": "optics", "stage": "equipment"},
+        {"id": "other-optics", "stage": "equipment"},
+        {"id": "litho", "stage": "equipment"}
+      ],
+      "edges": [
+        {"supplier": "optics", "buyer": "litho", "input": "lenses", "has_alternatives": "no"},
+        {"supplier": "other-optics", "buyer": "litho", "input": "lenses", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"companies": ["optics"]},
+      "expected": {"optics": "offline", "litho": "full"},
+      "expected_rules": {"litho": ["sole_source"]}
+    },
+    {
+      "name": "lost share_of_buyer_input weights of 0.5 or more are full",
+      "nodes": [
+        {"id": "big", "stage": "fabrication"},
+        {"id": "small", "stage": "fabrication"},
+        {"id": "designer", "stage": "chip_design"}
+      ],
+      "edges": [
+        {"supplier": "big", "buyer": "designer", "input": "wafers", "has_alternatives": "yes",
+         "weight": {"value": 0.6, "metric": "share_of_buyer_input", "basis": "fixture"}},
+        {"supplier": "small", "buyer": "designer", "input": "wafers", "has_alternatives": "yes",
+         "weight": {"value": 0.4, "metric": "share_of_buyer_input", "basis": "fixture"}}
+      ],
+      "scenario": {"companies": ["big"]},
+      "expected": {"big": "offline", "designer": "full"},
+      "expected_rules": {"designer": ["weight_threshold"]}
+    },
+    {
+      "name": "lost weights below 0.5 stay partial",
+      "nodes": [
+        {"id": "big", "stage": "fabrication"},
+        {"id": "small", "stage": "fabrication"},
+        {"id": "designer", "stage": "chip_design"}
+      ],
+      "edges": [
+        {"supplier": "big", "buyer": "designer", "input": "wafers", "has_alternatives": "yes",
+         "weight": {"value": 0.6, "metric": "share_of_buyer_input", "basis": "fixture"}},
+        {"supplier": "small", "buyer": "designer", "input": "wafers", "has_alternatives": "yes",
+         "weight": {"value": 0.4, "metric": "share_of_buyer_input", "basis": "fixture"}}
+      ],
+      "scenario": {"companies": ["small"]},
+      "expected": {"small": "offline", "designer": "partial"}
+    },
+    {
+      "name": "share_of_supplier_revenue weights do not trigger the threshold",
+      "nodes": [
+        {"id": "osat-a", "stage": "packaging_test"},
+        {"id": "osat-b", "stage": "packaging_test"},
+        {"id": "designer", "stage": "chip_design"}
+      ],
+      "edges": [
+        {"supplier": "osat-a", "buyer": "designer", "input": "packaging", "has_alternatives": "unknown",
+         "weight": {"value": 0.9, "metric": "share_of_supplier_revenue", "basis": "fixture"}},
+        {"supplier": "osat-b", "buyer": "designer", "input": "packaging", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"companies": ["osat-a"]},
+      "expected": {"osat-a": "offline", "designer": "partial"}
+    },
+    {
+      "name": "the worst input decides the node's state",
+      "nodes": [
+        {"id": "ip", "stage": "design_tools_ip"},
+        {"id": "fab-a", "stage": "fabrication"},
+        {"id": "fab-b", "stage": "fabrication"},
+        {"id": "designer", "stage": "chip_design"}
+      ],
+      "edges": [
+        {"supplier": "ip", "buyer": "designer", "input": "cores", "has_alternatives": "unknown"},
+        {"supplier": "fab-a", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"},
+        {"supplier": "fab-b", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"companies": ["fab-a", "ip"]},
+      "expected": {"ip": "offline", "fab-a": "offline", "designer": "full"},
+      "expected_rules": {"designer": ["all_suppliers_lost", "some_suppliers_lost"]}
+    },
+    {
+      "name": "cycles terminate",
+      "nodes": [
+        {"id": "a", "stage": "fabrication"},
+        {"id": "b", "stage": "packaging_test"},
+        {"id": "c", "stage": "materials"}
+      ],
+      "edges": [
+        {"supplier": "a", "buyer": "b", "input": "wafers", "has_alternatives": "unknown"},
+        {"supplier": "b", "buyer": "a", "input": "test", "has_alternatives": "unknown"},
+        {"supplier": "c", "buyer": "a", "input": "gas", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"companies": ["c"]},
+      "expected": {"c": "offline", "a": "full", "b": "full"}
+    },
+    {
+      "name": "suppliers are never impacted by their buyers",
+      "nodes": [
+        {"id": "fab", "stage": "fabrication"},
+        {"id": "designer", "stage": "chip_design"},
+        {"id": "unrelated", "stage": "materials"}
+      ],
+      "edges": [
+        {"supplier": "fab", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"companies": ["designer"]},
+      "expected": {"designer": "offline"}
+    },
+    {
+      "name": "an offline node stays offline even if its suppliers are lost too",
+      "nodes": [
+        {"id": "fab", "stage": "fabrication"},
+        {"id": "designer", "stage": "chip_design"}
+      ],
+      "edges": [
+        {"supplier": "fab", "buyer": "designer", "input": "wafers", "has_alternatives": "unknown"}
+      ],
+      "scenario": {"companies": ["fab", "designer"]},
+      "expected": {"fab": "offline", "designer": "offline"}
+    },
+    {
+      "name": "unknown ids in a scenario are ignored",
+      "nodes": [{"id": "fab", "stage": "fabrication"}],
+      "edges": [],
+      "scenario": {"companies": ["nobody"]},
+      "expected": {}
+    }
+  ]
+}

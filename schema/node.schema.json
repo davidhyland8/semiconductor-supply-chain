@@ -48,6 +48,7 @@
             "type": "boolean"
           },
           "basis": { "type": "string" },
+          "source_id": { "$ref": "urn:scg:common#/$defs/id" },
           "as_of": { "$ref": "urn:scg:common#/$defs/date" }
         }
       }

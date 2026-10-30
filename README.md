@@ -55,8 +55,25 @@ uv run scg validate seed
 
 Hand-curated edges, including any `inferred` edge with its written reasoning, are edited directly in `data/seed/edges.csv` and `data/seed/evidence.csv`.
 
+Inferred edges (defined with their reasoning in `pipeline/src/scg/inferred.py`) are regenerated with:
+
+```bash
+uv run scg add-inferred
+```
+
+### 5. Build
+
+```bash
+uv run scg build
+```
+
+This writes `data/build/graph.v<N>.json`: nodes, edges with evidence, inputs and precomputed analysis (chokepoints, single-company/stage/country criticality, ETO concentration, country share per stage). A new version is written only when content changes, and `data/build/CHANGELOG.md` lists what was added, removed or changed.
+
 ## Tests
 
 ```bash
 uv run pytest
+cd web && npm install && npm test
 ```
+
+The scenario engine exists in Python (`pipeline/src/scg/analysis/scenario.py`) and TypeScript (`web/src/scenario/propagate.ts`). Both run the shared test cases in `tests/fixtures/scenarios/`, and the TypeScript tests also replay every scenario precomputed in the latest build, so the two engines can't drift apart.

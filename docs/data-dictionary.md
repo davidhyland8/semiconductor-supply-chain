@@ -4,7 +4,8 @@ The JSON Schemas in `schema/` are authoritative. This page maps them to files.
 
 | File | Schema | Notes |
 |---|---|---|
-| `data/seed/nodes.csv` | `node.schema.json` | Hand-curated nodes. `aliases` is `;`-separated. `production_countries` is `;`-separated `CC`, `CC:share` or `CC*` (* = primary, most output there). |
+| `data/seed/nodes.csv` | `node.schema.json` | Hand-curated nodes. `aliases` is `;`-separated. |
+| `data/seed/production.csv` | – | Where each node produces: `node_id,country,share,primary,source_id,excerpt,locator,as_of,notes`. Merged into `production_countries`; excerpts verified like edge evidence. |
 | `data/seed/inputs.csv` | – | Controlled vocabulary for edge `input`: `id,name,stage,eto_id` |
 | `data/seed/edges.csv` | `edge.schema.json` | One row per edge. Evidence lives in `evidence.csv`. |
 | `data/seed/evidence.csv` | `evidence.schema.json` | One row per piece of evidence, keyed by `edge_id`. |

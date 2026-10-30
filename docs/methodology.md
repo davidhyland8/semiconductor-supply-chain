@@ -69,6 +69,7 @@ A scenario takes a set of companies, stages or countries offline. Every node end
 1. **Seeds.** Company and stage scenarios mark the selected nodes `offline`. In a country scenario, a node goes `offline` if that country is its only production country or holds at least 50% of its production. A smaller share makes the node `partial`.
 2. **Inputs.** For each buyer, incoming edges are grouped by `input`. For one input, a supplier is **lost** if it is `offline` or `full`, and **degraded** if it is `partial`.
 3. **Buyer state for that input:**
+   - **partial** if every known supplier is lost but every lost edge says `has_alternatives: yes`, meaning the buyer has alternatives the graph doesn't record (`alternatives_unrecorded`);
    - **full** if every known supplier of the input is lost, or
    - **full** if a lost edge has `has_alternatives: no`, or
    - **full** if the known `share_of_buyer_input` weights of lost edges sum to at least 0.5;
@@ -82,10 +83,18 @@ Limitations: the graph only knows the suppliers it has evidence for. "Every know
 
 The logic is implemented twice, in Python (`pipeline/src/scg/analysis/scenario.py`) and TypeScript (`web/src/scenario/`). Both run the shared test cases in `tests/fixtures/scenarios/` so they can't drift apart.
 
+Country scenarios use these rules:
+- A node goes `offline` if every production site is in an offline country, if a `primary` site is, or if the offline countries' shares sum to at least 50%.
+- Otherwise a hit on any of its sites makes it `partial`.
+- A node with no recorded production countries uses its HQ country instead, with rule `country_offline_hq_fallback`.
+- Product categories have no location and are only affected through their suppliers.
+
 ## Concentration
 
 - **Chokepoints:** inputs where a buyer has a single known supplier (or `has_alternatives: no`), and inputs where one supplier serves most buyers in the graph.
-- **HHI** per stage and per input, from company market shares, and per country from country shares. HHI = Σ(share × 100)², from 0 to 10,000. Above 2,500 is highly concentrated.
+- **HHI** per ETO input from company shares and from country shares. ETO's "Various" buckets are excluded. HHI = Σ(share × 100)², from 0 to 10,000; above 2,500 is highly concentrated.
+- **Country share per stage:** each top-level ETO input's country shares, weighted by its market size. The inputs are listed in `STAGE_INPUTS` in `analysis/concentration.py` and chosen so none is a sub-type of another. ETO doesn't cover fabrication, packaging or assembly, so those stages need another public source.
+- **Criticality:** every single company, stage and country is taken offline in turn. Score = offline nodes (other than the named company) + fully impacted nodes + ½ × partially impacted nodes. It is precomputed into the build.
 
 ## Extraction
 
