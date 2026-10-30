@@ -62,3 +62,9 @@ tf-amd,TF-AMD,company,,packaging_test,osat,CN,the ATMP JVs;Tongfu Microelectroni
 wistron,Wistron,company,,assembly_end_products,ems,TW,Wistron Corporation,3231.TW,,
 fabrinet,Fabrinet,company,,assembly_end_products,ems,TH,,FN,,Cayman-incorporated; principal manufacturing in Thailand
 sanmina,Sanmina,company,,assembly_end_products,ems,US,Sanmina Corporation,SANM,,Acquired AMD's ZT Systems manufacturing business
+axcelis,Axcelis Technologies,company,,equipment,,US,,,P84,Added from extraction (axcelis-10k-2025): Ion implanter maker filing its own 10-K; matches ETO provider P84 Axcelis (HQ US).
+formfactor,FormFactor,company,,equipment,,US,,,P323,Added from extraction (formfactor-10k-2025): Probe card maker filing its own 10-K; matches ETO provider P323 FormFactor (HQ US).
+ichor,Ichor,company,,equipment,,US,,,,"Added from extraction (ichor-10k-2025): Fluid delivery subsystem maker filing its own 10-K, which says it is headquartered in Fremont, California. Not in ETO."
+kulicke-soffa,Kulicke & Soffa,company,,equipment,,SG,,,P164,"Added from extraction (kulicke-soffa-10k-2025): Assembly equipment maker filing its own 10-K; matches ETO provider P164 Kulicke & Soffa, which ETO places in Singapore."
+huatian,Tianshui Huatian Technology,company,,packaging_test,,CN,"Tianshui Huatian Technology Co., Ltd",,P53,"Added from extraction (kulicke-soffa-10k-2025): Chinese OSAT named as a >10% customer in Kulicke & Soffa's 10-K; the same company as ETO provider P53 'Huatian Technology' (CHN), which the name matcher missed because of the city prefix."
+ultra-clean,Ultra Clean Holdings,company,,equipment,,US,,,,"Added from extraction (ultra-clean-10k-2025): Subsystem and parts supplier to equipment makers filing its own 10-K, which says its headquarters is in Hayward, California. Not in ETO."

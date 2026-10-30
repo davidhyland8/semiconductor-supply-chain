@@ -51,7 +51,7 @@ Anonymised counterparties ("Customer A", "a major OEM"): only record one if the 
 - `supplier` / `buyer`: `mention` is the name exactly as written ("we" is fine for the filer). `node_id` is the matching id from `nodes.csv`, or `null` with a `proposed_name` if there is no match.
 - `input`: an id from `inputs.csv`. If none fits, propose a kebab-case id and set `input_is_new: true`.
 - `weight`: only when the document gives a number, e.g. "Customer X accounted for 19% of net revenue" → `{"value": 0.19, "metric": "share_of_supplier_revenue", "basis": "<doc> FY2025: 19% of net revenue"}`. Otherwise omit it or use null. Never estimate.
-- `has_alternatives`: `"no"` only if the document says sole or single source. `"yes"` only if it says the buyer has multiple or qualified alternative sources for that input. Otherwise `"unknown"`.
+- `has_alternatives`: `"no"` only if the document says sole or single source. `"yes"` only if it says the buyer has multiple or qualified alternative sources for that input, or the supplier's own filing names competitors for that product (cite them in `notes` with the section). Otherwise `"unknown"`. This matters: a buyer whose only recorded supplier is marked `unknown` is treated as fully cut off when that supplier goes offline.
 - `confidence`: `high` when the passage names both parties and the input unambiguously. Lower it otherwise, and use `notes` to say why.
 - `extractor`: `{"agent": "relationship-extractor", "model": "<your model id>", "date": "<today, YYYY-MM-DD>"}`.
 

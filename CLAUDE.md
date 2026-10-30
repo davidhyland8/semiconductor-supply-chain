@@ -15,6 +15,7 @@ Interactive graph of the chip supply chain with disruption scenarios. Read `docs
 - `uv run pytest` – Python tests
 - `uv run scg validate extraction data/extracted/<id>.jsonl` · `uv run scg validate seed`
 - `SCG_SEC_CONTACT=<email> uv run scg collect sec` · `uv run scg collect url <id> <url> --doc-type ... --title ...`
+- `uv run scg status` · `uv run scg entities` · `uv run scg review` (extraction queue, unmatched companies, review list)
 - `uv run scg promote` (reviewed candidates → seed) · `uv run scg add-inferred` · `uv run scg build`
 - `cd web && npm test` – TS scenario tests (shared fixtures + parity with the latest build)
 

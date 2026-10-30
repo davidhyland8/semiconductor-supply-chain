@@ -2,11 +2,11 @@ import argparse
 import sys
 from pathlib import Path
 
-from scg import paths
+from scg import entities, paths, review
 from scg.build import write_build
 from scg.collect import collect_sec, collect_url
 from scg.inferred import add_inferred
-from scg.promote import promote
+from scg.promote import load_decisions, promote
 from scg.seed import validate_seed
 from scg.validate import validate_extraction
 
@@ -42,7 +42,65 @@ def _promote(args: argparse.Namespace) -> int:
         print(f"rejected: {r}")
     for s in result.skipped:
         print(f"skipped: {s}")
-    print(f"promoted {len(files)} files: +{result.edges_added} edges, +{result.evidence_added} evidence")
+    for c in result.entity_changes:
+        print(f"entities: {c}")
+    print(
+        f"promoted {len(files)} files: +{result.edges_added} edges, +{result.evidence_added} evidence; "
+        f"{len(result.pending)} waiting for review (scg review), {sum(not s.endswith('(ignored)') for s in result.skipped)} waiting on entities (scg entities)"
+    )
+    return 0
+
+
+def _extraction_files(args: argparse.Namespace) -> list[Path]:
+    return sorted(paths.EXTRACTED_DIR.glob("*.jsonl"))
+
+
+def _queue(files: list[Path]) -> list[review.Candidate]:
+    ignored = {r["key"] for r in entities._rows(paths.EXTRACTED_DIR / "entities.csv") if r.get("decision") == "ignore"}
+    return review.candidates(files, decisions=load_decisions(paths.EXTRACTED_DIR / "decisions.csv"), ignored=ignored)
+
+
+def _status(args: argparse.Namespace) -> int:
+    statuses = review.status(cands=_queue(_extraction_files(args)))
+    todo = review.to_extract(statuses)
+    if args.todo:
+        print(" ".join(todo))
+        return 0
+    states = ["promoted", "auto", "accepted", "needs_review", "blocked", "rejected", "ignored"]
+    print(f"{'source':44} {'type':22} " + " ".join(f"{s[:8]:>8}" for s in states))
+    totals = dict.fromkeys(states, 0)
+    for st in statuses:
+        if not st.extracted:
+            continue
+        for k, v in st.counts.items():
+            totals[k] += v
+        print(f"{st.source_id:44} {st.doc_type:22} " + " ".join(f"{st.counts.get(s, 0):>8}" for s in states))
+    print(f"{'total':67} " + " ".join(f"{totals[s]:>8}" for s in states))
+    print(f"\n{sum(s.extracted for s in statuses)} of {len(statuses)} sources extracted; {len(todo)} cached and waiting: {' '.join(todo)}")
+    return 0
+
+
+def _entities(args: argparse.Namespace) -> int:
+    rejected = {k for k, d in load_decisions(paths.EXTRACTED_DIR / "decisions.csv").items() if d["decision"] == "reject"}
+    rows = entities.refresh(_extraction_files(args), skip=rejected)
+    errors = entities.check()
+    for e in errors:
+        print(f"error: {e}")
+    open_rows = [r for r in rows if not r["decision"]]
+    for r in open_rows:
+        match = f" [ETO: {r['eto_match']}]" if r["eto_match"] else ""
+        print(f"undecided: {r['proposed_name']} ({r['candidates']} candidates in {r['sources']}){match}")
+    print(f"data/extracted/entities.csv: {len(rows)} entities, {len(open_rows)} undecided")
+    return 1 if errors else 0
+
+
+def _review(args: argparse.Namespace) -> int:
+    cands = _queue(_extraction_files(args))
+    names = {r["id"]: r["name"] for r in entities._rows(paths.SEED_DIR / "nodes.csv")}
+    out = paths.EXTRACTED_DIR / "review.md"
+    out.write_text(review.review_markdown(cands, names))
+    n = sum(c.state in ("needs_review", "blocked") for c in cands)
+    print(f"{out}: {n} candidates need a decision")
     return 0
 
 
@@ -103,6 +161,16 @@ def main(argv: list[str] | None = None) -> int:
     url.add_argument("--publisher", default="")
     url.add_argument("--published", default="", help="YYYY[-MM[-DD]]")
     url.set_defaults(func=_collect_url)
+
+    st = sub.add_parser("status", help="per-source extraction and review status")
+    st.add_argument("--todo", action="store_true", help="print only the source ids waiting for extraction")
+    st.set_defaults(func=_status)
+
+    ent = sub.add_parser("entities", help="group unmatched companies across extractions into data/extracted/entities.csv")
+    ent.set_defaults(func=_entities)
+
+    rev = sub.add_parser("review", help="write data/extracted/review.md: candidates waiting for a decision")
+    rev.set_defaults(func=_review)
 
     inf = sub.add_parser("add-inferred", help="write the curated inferred edges in scg/inferred.py to data/seed")
     inf.set_defaults(func=_add_inferred)

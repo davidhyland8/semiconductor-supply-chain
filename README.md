@@ -52,7 +52,13 @@ The validator checks the schema, references to known nodes and inputs, and that 
 
 ### 4. Review and promotion
 
-Review decisions (reject, or correct an input, buyer or supplier, always with a reason) go in `data/extracted/decisions.csv`. Then merge candidates into the seed graph and validate it:
+```bash
+uv run scg status      # per-source state; --todo prints sources waiting for extraction
+uv run scg entities    # unmatched companies across documents -> data/extracted/entities.csv
+uv run scg review      # candidates needing a decision -> data/extracted/review.md
+```
+
+Decide each new company in `entities.csv` (`create`, `alias` or `ignore`, with a reason). Then decide each queued candidate in `data/extracted/decisions.csv` (accept, or reject, or correct an input, buyer or supplier, always with a reason). High-confidence candidates with nothing to check are promoted without a decision. Then merge and validate:
 
 ```bash
 uv run scg promote
@@ -85,7 +91,7 @@ npm run dev      # http://localhost:5173
 npm run build    # static site in web/dist
 ```
 
-The app loads the latest `data/build/graph.v<N>.json`. It has a layered view (one column per stage, in supply order) and a force-directed network view. Click a company to see its suppliers and customers grouped by input, with each edge's evidence: the verbatim excerpt and source link, or the written reasoning for inferred edges. Edges are solid when disclosed, dashed when reported and dotted when inferred.
+The app loads the latest `data/build/graph.v<N>.json`. Restart `npm run dev` after `scg build` writes a new version, so the dev server sees the new file. It has a layered view (one column per stage, in supply order) and a force-directed network view. Click a company to see its suppliers and customers grouped by input, with each edge's evidence: the verbatim excerpt and source link, or the written reasoning for inferred edges. Edges are solid when disclosed, dashed when reported and dotted when inferred.
 
 Search also finds ETO inputs and ETO-only companies. An input's panel shows who sells it and their market shares; an ETO-only company's panel shows its market position and notes that it has no sourced relationships yet.
 

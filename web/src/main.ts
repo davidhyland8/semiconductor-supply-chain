@@ -130,10 +130,13 @@ async function main() {
   const search = document.getElementById("search") as HTMLInputElement;
   const entries = searchEntries(doc);
   document.getElementById("node-names")!.innerHTML = entries.map((e) => `<option value="${esc(e.label)}"></option>`).join("");
-  search.addEventListener("change", () => {
+  const runSearch = () => {
     const hit = find(entries, search.value);
     if (hit) select(hit, true);
-  });
+  };
+  // "change" alone misses Enter while the suggestion list is open.
+  search.addEventListener("change", runSearch);
+  search.addEventListener("keydown", (ev) => ev.key === "Enter" && runSearch());
 
   view.relayout();
   renderPanel();

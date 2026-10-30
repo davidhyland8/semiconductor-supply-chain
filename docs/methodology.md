@@ -127,7 +127,19 @@ Relationships beyond the hand-curated seed come from the `relationship-extractor
 1. Register the document in `data/sources/sources.csv` and cache its text at `data/sources/cache/<source_id>.txt`.
 2. The agent writes candidate records to `data/extracted/<source_id>.jsonl` (`schema/extraction.schema.json`).
 3. `scg validate extraction` checks the schema and the references, and confirms each excerpt appears verbatim in the cached text.
-4. A human reviews the candidates. Rejections and corrections go in `data/extracted/decisions.csv` with a reason. `scg promote` then merges the rest into `data/seed/edges.csv` and `evidence.csv`. Entities with no `node_id` are matched through node names and aliases. Candidates still unmatched are skipped and listed.
+4. **Name matching.** Company names are compared on a canonical key: case, punctuation and legal suffixes (Inc., Co., Ltd., Corporation, Holdings…) are ignored, and a trailing parenthetical counts as another name ("King Yuan Electronics (KYEC)"). Mentions that match no node are grouped across all documents into `data/extracted/entities.csv` (`scg entities`) and checked against the ETO market catalogue. A reviewer decides each one with a reason:
+   - `create` adds a node, prefilled from ETO where it matches;
+   - `alias` adds the mention to an existing node;
+   - `ignore` keeps its candidates out of the graph.
+5. **Review queue.** A candidate is promoted without review only if all of these hold:
+   - it is high confidence;
+   - both companies are matched;
+   - its input is in the vocabulary;
+   - it is not anonymised;
+   - it carries no weight and no sole-source claim.
+
+   Everything else is listed in `data/extracted/review.md` (`scg review`) and waits for an accept or reject row in `decisions.csv`. Rejections and corrections always need a reason.
+6. **Promotion.** `scg promote` applies the entity decisions, then merges accepted candidates into `data/seed/edges.csv` and `evidence.csv`. Evidence is deduplicated by edge, source and excerpt, so several documents stating the same relationship become one edge with several pieces of evidence. `scg status` shows each source's candidates by state: promoted, auto, accepted, needs review, blocked on an entity, rejected or ignored. It also lists cached documents not yet extracted.
 
 Anonymised counterparties ("Customer A: 22% of revenue") are skipped, not guessed. Their shares are listed in the extraction summaries, so a later pass can identify them from other public sources.
 

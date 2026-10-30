@@ -1,5 +1,14 @@
 # Graph build changelog
 
+## v4 (2026-10-30)
+
+69 nodes, 163 edges.
+- Added 6 nodes: axcelis, formfactor, huatian, ichor, kulicke-soffa, ultra-clean
+- Changed 31 nodes: ai-servers, amd, apple-devices, apple-silicon, applied-materials, ase, asml, automotive, broadcom, globalfoundries, infineon, intel-foundry, intel-products, lam-research, mediatek, micron, novatek, nvidia, pcs, qualcomm …
+- Added 10 edges: axcelis-to-smic-ion-implanters, formfactor-to-intel-foundry-probe-cards, formfactor-to-sk-hynix-probe-cards, formfactor-to-tsmc-probe-cards, ichor-to-applied-materials-equipment-subsystems, ichor-to-asml-equipment-subsystems, ichor-to-lam-research-equipment-subsystems, kulicke-soffa-to-huatian-assembly-tools, ultra-clean-to-applied-materials-equipment-subsystems, ultra-clean-to-lam-research-equipment-subsystems
+- Removed 3 ETO market companies: axcelis, formfactor, kulicke-soffa
+- Analysis changed: chokepoints, criticality
+
 ## v3 (2026-10-30)
 
 63 nodes, 153 edges.

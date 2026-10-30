@@ -35,3 +35,5 @@ end-devices,Finished devices,assembly_end_products,,Branded end products deliver
 lithography-optics,Lithography optics,equipment,,Projection and illumination optics for lithography scanners
 fab-purity-consumables,Fab purity consumables,materials,,"Filtration, CMP consumables, specialty chemistries and wafer handling (Entegris-type product mix)"
 automotive-socs,Automotive SoCs,chip_design,,"Digital cockpit, ADAS and connectivity SoCs for vehicles"
+equipment-subsystems,Equipment subsystems,equipment,,"Gas and fluid delivery, vacuum, RF power and other subsystems and components sold to equipment makers"
+probe-cards,Probe cards,equipment,,"Interfaces between test equipment and the wafer, used to test dies before packaging"
