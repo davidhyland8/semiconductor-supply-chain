@@ -42,8 +42,19 @@ No relationship or figure is invented. Anything without a source is `inferred`, 
 
 Optional dependency data on an edge:
 
-- `weight`: a published share, either `share_of_buyer_input` (e.g. 90% of the buyer's wafers come from this supplier) or `share_of_supplier_revenue` (e.g. customer X is 19% of the supplier's revenue), with its basis. Never estimated.
+- `weight`: a published share, either `share_of_buyer_input` (e.g. 90% of the buyer's wafers come from this supplier) or `share_of_supplier_revenue` (e.g. customer X is 19% of the supplier's revenue), with its basis. Never estimated. A weight may be **derived** from figures the same source states (e.g. iPhone net sales ÷ total net sales), and the basis must then show the calculation. It may also come from combining two passages of one document, e.g. "TSMC is the only customer above 10%" plus "one customer was 19%".
 - `has_alternatives`: `yes`, `no` or `unknown`, i.e. whether the buyer has other qualified sources for this input.
+
+### End-market edges
+
+An end-market node (`smartphones`, `pcs`, `ai-servers`, `automotive`) is linked from the company that **sells into** that market, i.e. a device maker, an EMS or a chip designer, often with a segment revenue share as weight. A foundry's revenue split by platform (e.g. TSMC: 29% smartphone) is market exposure, not a supply flow, and is rejected. Foundries reach end markets through the designers they supply.
+
+### Inferred edges
+
+Inferred edges are defined in code (`pipeline/src/scg/inferred.py`), so each rule and its reasoning can be reviewed, and are written by `scg add-inferred`. They are used in two cases:
+
+1. **Dominant toolmakers.** If ETO/TechInsights 2025 data gives a toolmaker a dominant share of a tool category (ASML 100% of EUV, TEL 92.6% of coater/developer tracks, KLA 85.9% of defect inspection, Applied 82.4% of PVD, Lam 41% of dry etch), each major fab using that process step is linked to it. An inferred edge is skipped wherever a stated source already covers it.
+2. **Close-but-unstated evidence.** A source describes co-development plus local production but stops short of a supply contract (e.g. TOK, Shin-Etsu and JSR photoresist for TSMC). The excerpt is kept, and the label stays `inferred`.
 
 Every figure carries an `as_of` date. The ETO dataset is older than current filings, so its shares are shown with their date and replaced per stage where newer public figures exist.
 
@@ -83,6 +94,8 @@ Relationships beyond the hand-curated seed come from the `relationship-extractor
 1. Register the document in `data/sources/sources.csv` and cache its text at `data/sources/cache/<source_id>.txt`.
 2. The agent writes candidate records to `data/extracted/<source_id>.jsonl` (`schema/extraction.schema.json`).
 3. `scg validate extraction` checks the schema and the references, and confirms each excerpt appears verbatim in the cached text.
-4. A human reviews the candidates before they are merged into edges.
+4. A human reviews the candidates. Rejections and corrections go in `data/extracted/decisions.csv` with a reason. `scg promote` then merges the rest into `data/seed/edges.csv` and `evidence.csv`. Entities with no `node_id` are matched through node names and aliases. Candidates still unmatched are skipped and listed.
+
+Anonymised counterparties ("Customer A: 22% of revenue") are skipped, not guessed. Their shares are listed in the extraction summaries, so a later pass can identify them from other public sources.
 
 Extraction only produces `disclosed` or `reported` evidence. `inferred` is reserved for human curation.

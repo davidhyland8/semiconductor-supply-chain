@@ -1,0 +1,6 @@
+source_id,line,decision,set_supplier,set_buyer,set_input,set_has_alternatives,reason
+tsmc-20f-2025,1,reject,,,,,"Platform revenue share is market exposure, not a supply flow; TSMC reaches end markets through the chip designers it supplies"
+tsmc-20f-2025,2,reject,,,,,"Platform revenue share is market exposure, not a supply flow; TSMC reaches end markets through the chip designers it supplies"
+ase-20f-2025,9,reject,,,,,Minor back-end tool vendor; outside seed scope
+ase-20f-2025,10,reject,,,,,Minor back-end tool vendor; outside seed scope
+ase-20f-2025,11,reject,,,,,Minor back-end tool vendor; outside seed scope

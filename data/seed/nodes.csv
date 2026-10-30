@@ -1,0 +1,64 @@
+id,name,kind,parent,stage,role,hq_country,production_countries,aliases,ticker,eto_provider_id,notes
+synopsys,Synopsys,company,,design_tools_ip,eda,US,,Synopsys Inc.,SNPS,P185,
+cadence,Cadence Design Systems,company,,design_tools_ip,eda,US,,Cadence;Cadence Design Systems Inc.,CDNS,P186,
+siemens-eda,Siemens EDA,company,siemens,design_tools_ip,eda,US,,Mentor Graphics;Mentor,,,Formerly Mentor Graphics; part of Siemens Digital Industries Software
+arm,Arm,company,,design_tools_ip,ip,GB,,ARM;Arm Holdings;Arm Limited,ARM,P198,
+nvidia,NVIDIA,company,,chip_design,fabless,US,,Nvidia;NVIDIA Corporation,NVDA,P11,
+amd,AMD,company,,chip_design,fabless,US,,Advanced Micro Devices;Xilinx,AMD,P10,
+qualcomm,Qualcomm,company,,chip_design,fabless,US,,Qualcomm Incorporated;QCT,QCOM,,
+broadcom,Broadcom,company,,chip_design,fabless,US,,Broadcom Inc.,AVGO,,
+mediatek,MediaTek,company,,chip_design,fabless,TW,,MediaTek Inc.,2454.TW,,
+apple-silicon,Apple Silicon,company,apple,chip_design,fabless,US,,Apple;Apple Inc.,AAPL,,Apple's in-house chip design (A- and M-series SoCs)
+intel-products,Intel Products,company,intel,chip_design,idm,US,,Intel;Intel Corporation,INTC,P9,"Intel's chip design businesses (CCG, DCAI); fabricated by Intel Foundry and external foundries"
+texas-instruments,Texas Instruments,company,,chip_design,idm,US,,TI;Texas Instruments Incorporated,TXN,,
+infineon,Infineon Technologies,company,,chip_design,idm,DE,,Infineon;Infineon Technologies AG,IFX.DE,,
+samsung-lsi,Samsung System LSI,company,samsung,chip_design,fabless,KR,,Samsung LSI;Exynos,005930.KS,,Samsung's chip design business (Exynos SoCs and image sensors)
+asml,ASML,company,,equipment,equipment,NL,,ASML Holding;ASML Holding N.V.,ASML,P88,
+applied-materials,Applied Materials,company,,equipment,equipment,US,,Applied;AMAT;Applied Materials Inc.,AMAT,P81,
+lam-research,Lam Research,company,,equipment,equipment,US,,Lam;Lam Research Corporation,LRCX,P111,
+tokyo-electron,Tokyo Electron,company,,equipment,equipment,JP,,TEL;Tokyo Electron Limited,8035.T,P105,
+kla,KLA,company,,equipment,equipment,US,,KLA Corporation;KLA-Tencor,KLAC,P118,
+advantest,Advantest,company,,equipment,equipment,JP,,Advantest Corporation,6857.T,,
+shin-etsu,Shin-Etsu Chemical,company,,materials,wafers,JP,,Shin-Etsu;Shin-Etsu Handotai;SEH,4063.T,P208,Also supplies photoresists
+sumco,SUMCO,company,,materials,wafers,JP,,SUMCO Corporation,3436.T,P225,
+jsr,JSR,company,,materials,photoresist,JP,,JSR Corporation,,P206,Taken private by JIC in 2024
+tokyo-ohka-kogyo,Tokyo Ohka Kogyo,company,,materials,photoresist,JP,,TOK;Tokyo Ohka Kogyo Co.,4186.T,P207,
+linde,Linde,company,,materials,gases_chemicals,GB,,Linde plc,LIN,P250,Incorporated in Ireland with head office in Woking UK; ETO lists Germany (legacy Linde AG)
+entegris,Entegris,company,,materials,other_materials,US,,Entegris Inc.,ENTG,P255,"Specialty chemicals, CMP materials and filtration"
+ibiden,Ibiden,company,,materials,substrates,JP,,Ibiden Co.,4062.T,P297,
+unimicron,Unimicron,company,,materials,substrates,TW,,Unimicron Technology,3037.TW,,
+tsmc,TSMC,company,tsmc-group,fabrication,foundry,TW,,Taiwan Semiconductor Manufacturing Company;Taiwan Semiconductor Manufacturing Co.;TSMC,TSM,P34,
+samsung-foundry,Samsung Foundry,company,samsung,fabrication,foundry,KR,,Samsung;Samsung Electronics,005930.KS,,
+intel-foundry,Intel Foundry,company,intel,fabrication,foundry,US,,Intel;Intel Foundry Services;IFS,INTC,,Intel's manufacturing business; internal and external customers
+smic,SMIC,company,,fabrication,foundry,CN,,Semiconductor Manufacturing International Corporation,0981.HK,P37,
+umc,UMC,company,,fabrication,foundry,TW,,United Microelectronics Corporation,UMC,P38,
+globalfoundries,GlobalFoundries,company,,fabrication,foundry,US,,GF;GlobalFoundries Inc.,GFS,P36,
+samsung-memory,Samsung Memory,company,samsung,fabrication,memory,KR,,Samsung;Samsung Electronics,005930.KS,,
+sk-hynix,SK hynix,company,,fabrication,memory,KR,,SK Hynix;SK hynix Inc.,000660.KS,P55,
+micron,Micron Technology,company,,fabrication,memory,US,,Micron;Micron Technology Inc.,MU,P56,
+tsmc-advanced-packaging,TSMC Advanced Packaging,company,tsmc-group,packaging_test,advanced_packaging,TW,,CoWoS;SoIC;TSMC 3DFabric,TSM,,TSMC's back-end advanced packaging (3DFabric: CoWoS/InFO/SoIC)
+ase,ASE,company,ase-holding,packaging_test,osat,TW,,ASE Technology Holding;ASE Group;SPIL;Siliconware,ASX,P48,Includes SPIL
+amkor,Amkor Technology,company,,packaging_test,osat,US,,Amkor;Amkor Technology Inc.,AMKR,P49,
+jcet,JCET,company,,packaging_test,osat,CN,,JCET Group;Jiangsu Changjiang Electronics Technology;STATS ChipPAC;STATSChipPAC,600584.SS,P50,
+foxconn,Foxconn,company,,assembly_end_products,ems,TW,,Hon Hai;Hon Hai Precision Industry;Foxconn Technology Group,2317.TW,,
+quanta,Quanta Computer,company,,assembly_end_products,ems,TW,,Quanta;QCT;Quanta Cloud Technology,2382.TW,,
+pegatron,Pegatron,company,,assembly_end_products,ems,TW,,Pegatron Corporation,4938.TW,,
+apple-devices,Apple Devices,company,apple,assembly_end_products,oem,US,,Apple;Apple Inc.,AAPL,,"iPhone, Mac, iPad and wearables"
+smartphones,Smartphones,product_category,,assembly_end_products,end_market,,,,,,
+pcs,PCs,product_category,,assembly_end_products,end_market,,,,,,
+ai-servers,AI servers,product_category,,assembly_end_products,end_market,,,,,,Data-centre servers built around AI accelerators
+automotive,Automotive,product_category,,assembly_end_products,end_market,,,,,,Vehicle electronics
+arm-china,Arm China,company,,design_tools_ip,ip,CN,,Arm Technology (China);Arm China,,,Independent Chinese licensee that sublicenses Arm IP to PRC customers
+realtek,Realtek,company,,chip_design,fabless,TW,,Realtek Semiconductor,2379.TW,,
+novatek,Novatek Microelectronics,company,,chip_design,fabless,TW,,Novatek,3034.TW,,
+carl-zeiss-smt,Carl Zeiss SMT,company,,equipment,equipment,DE,,Zeiss SMT;Carl Zeiss SMT GmbH,,,Optics for ASML lithography systems
+teradyne,Teradyne,company,,equipment,equipment,US,,"Teradyne, Inc.",TER,,
+soitec,Soitec,company,,materials,wafers,FR,,Soitec S.A.,SOI.PA,,Silicon-on-insulator (SOI) wafers
+globalwafers,GlobalWafers,company,,materials,wafers,TW,,GlobalWafers Co.,6488.TWO,,
+kinsus,Kinsus Interconnect Technology,company,,materials,substrates,TW,,Kinsus;Kinsus Interconnect Technology Corporation,3189.TW,,
+nan-ya-pcb,Nan Ya PCB,company,,materials,substrates,TW,,Nan Ya Printed Circuit Board Corporation,8046.TW,,
+kyec,King Yuan Electronics,company,,packaging_test,osat,TW,,KYEC;King Yuan Electronics Company (KYEC),2449.TW,,Test services
+tf-amd,TF-AMD,company,,packaging_test,osat,CN,,the ATMP JVs;Tongfu Microelectronics ATMP joint ventures,,,Two ATMP joint ventures between AMD (15%) and affiliates of Tongfu Microelectronics
+wistron,Wistron,company,,assembly_end_products,ems,TW,,Wistron Corporation,3231.TW,,
+fabrinet,Fabrinet,company,,assembly_end_products,ems,TH,,,FN,,Cayman-incorporated; principal manufacturing in Thailand
+sanmina,Sanmina,company,,assembly_end_products,ems,US,,Sanmina Corporation,SANM,,Acquired AMD's ZT Systems manufacturing business

@@ -59,6 +59,15 @@ def test_normalise_joins_hyphenated_line_breaks_and_quotes():
     assert normalise("ultra-\n  violet “EUV”") == normalise('ultraviolet "euv"')
 
 
+def test_normalise_ignores_split_inline_elements():
+    assert normalise("approximately\n19\n% of total revenues") == normalise("approximately 19% of total revenues")
+
+
+def test_normalise_keeps_dash_before_line_break():
+    assert normalise("iPhone sales—\nTotal") == normalise("iPhone sales— Total")
+    assert "sales-total" in normalise("iPhone sales—\nTotal")
+
+
 def test_paraphrased_excerpt_rejected(repo):
     report = run(repo, record(excerpt="Acme Litho is our only EUV lithography supplier"))
     assert any("not found verbatim" in e for e in report.errors)

@@ -4,8 +4,10 @@
   "title": "Node",
   "description": "One business in one stage. Multi-stage companies are split into units sharing a parent (samsung-foundry, samsung-memory -> samsung).",
   "type": "object",
-  "required": ["id", "name", "kind", "stage", "hq_country"],
+  "required": ["id", "name", "kind", "stage"],
   "additionalProperties": false,
+  "if": { "properties": { "kind": { "const": "company" } } },
+  "then": { "required": ["hq_country"] },
   "properties": {
     "id": { "$ref": "urn:scg:common#/$defs/id" },
     "name": { "type": "string", "minLength": 1 },
@@ -41,6 +43,10 @@
         "properties": {
           "country": { "$ref": "urn:scg:common#/$defs/country" },
           "share": { "$ref": "urn:scg:common#/$defs/share" },
+          "primary": {
+            "description": "The source says most output is here but gives no share. Treated as >= 50% in country scenarios.",
+            "type": "boolean"
+          },
           "basis": { "type": "string" },
           "as_of": { "$ref": "urn:scg:common#/$defs/date" }
         }
@@ -52,6 +58,11 @@
       "items": { "type": "string" }
     },
     "ticker": { "type": "string" },
+    "eto_provider_id": {
+      "description": "Matching provider_id in the ETO dataset (providers.csv), e.g. P34.",
+      "type": "string",
+      "pattern": "^P\\d+$"
+    },
     "notes": { "type": "string" }
   }
 }

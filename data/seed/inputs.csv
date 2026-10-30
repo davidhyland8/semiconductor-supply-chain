@@ -1,0 +1,37 @@
+id,name,stage,eto_id,description
+eda-software,Electronic design automation software,design_tools_ip,N84,Chip design and verification software
+core-ip,Core IP,design_tools_ip,N85,Licensed processor cores and other design blocks
+euv-lithography,EUV lithography tools,equipment,N20,Extreme ultraviolet scanners for leading-edge patterning
+duv-lithography,DUV lithography tools,equipment,N19,"ArF immersion, ArF dry and KrF scanners"
+deposition-tools,Deposition tools,equipment,N36,"CVD, ALD, PVD, epitaxy and plating tools"
+etch-clean-tools,Etch and clean tools,equipment,N55,Dry etch and wet clean tools
+process-control-tools,Process control tools,equipment,N60,"Inspection, metrology and review tools"
+resist-processing-tools,Resist processing tools,equipment,N32,Coater/developer tracks paired with lithography tools
+cmp-tools,CMP tools,equipment,N86,Chemical mechanical planarization tools
+ion-implanters,Ion implanters,equipment,N17,Ion implantation tools
+test-tools,Test tools,equipment,N120,"SoC, memory and burn-in automated test equipment"
+assembly-tools,Assembly and packaging tools,equipment,N119,"Dicing, bonding and other back-end tools"
+silicon-wafers,Silicon wafers,materials,N26,Polished and epitaxial silicon wafers
+photoresists,Photoresists,materials,N31,"Light-sensitive resists, including EUV and ArF resists"
+photomasks,Photomasks,materials,N33,Merchant photomasks (many fabs also make their own)
+electronic-gases,Electronic gases,materials,N91,"Specialty and bulk gases (e.g. neon, NF3, WF6)"
+wet-chemicals,Wet chemicals,materials,N92,High-purity process chemicals
+cmp-materials,CMP materials,materials,N90,CMP slurries and pads
+package-substrates,Package substrates,materials,N96,"Organic (ABF/BT) substrates for flip-chip packages"
+logic-foundry-leading,Leading-edge logic foundry services,fabrication,,"Contract wafer fabrication at 7nm-class and below"
+logic-foundry-mature,Mature-node logic foundry services,fabrication,,Contract wafer fabrication at 16nm-class and above
+dram,DRAM,fabrication,,Conventional DRAM chips
+hbm,High-bandwidth memory,fabrication,,Stacked DRAM for AI accelerators
+nand,NAND flash,fabrication,,NAND flash memory
+advanced-packaging,Advanced packaging,packaging_test,,"2.5D/3D packaging such as CoWoS, SoIC, EMIB/Foveros"
+osat-services,Outsourced assembly and test,packaging_test,N69,Conventional assembly and test by OSATs
+ai-accelerators,AI accelerators,chip_design,N4,"Data-centre GPUs and AI ASICs"
+cpus,CPUs,chip_design,N1,"Server, PC and mobile CPUs"
+mobile-socs,Mobile SoCs,chip_design,,Smartphone application processors and modems
+networking-chips,Networking and connectivity chips,chip_design,,"Switching, NICs, wireless and RF chips"
+analog-power-chips,"Analog, power and microcontroller chips",chip_design,N13,"Discrete, analog, optoelectronic and microcontroller chips"
+contract-assembly,Electronics contract manufacturing,assembly_end_products,,Final assembly of devices and servers
+end-devices,Finished devices,assembly_end_products,,Branded end products delivered to an end market
+lithography-optics,Lithography optics,equipment,,Projection and illumination optics for lithography scanners
+fab-purity-consumables,Fab purity consumables,materials,,"Filtration, CMP consumables, specialty chemistries and wafer handling (Entegris-type product mix)"
+automotive-socs,Automotive SoCs,chip_design,,"Digital cockpit, ADAS and connectivity SoCs for vehicles"

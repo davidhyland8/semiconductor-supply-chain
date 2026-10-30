@@ -21,10 +21,13 @@ _PUNCT = str.maketrans({
 
 
 def normalise(text: str) -> str:
-    """Fold case, quotes, dashes, line-break hyphenation and whitespace."""
-    text = unicodedata.normalize("NFKC", text).translate(_PUNCT)
-    text = re.sub(r"-\s*\n\s*", "", text)
-    return re.sub(r"\s+", " ", text).strip().casefold()
+    """Matching key for verbatim checks: folds case, quotes, dashes and words
+    hyphenated across a line break, and drops all whitespace (HTML-to-text
+    conversion splits inline elements and table cells unpredictably)."""
+    text = unicodedata.normalize("NFKC", text)
+    text = re.sub(r"(?<=[A-Za-z])-[ \t]*\n\s*(?=[a-z])", "", text)
+    text = text.translate(_PUNCT)
+    return re.sub(r"\s+", "", text).casefold()
 
 
 def read_ids(path: Path) -> set[str] | None:

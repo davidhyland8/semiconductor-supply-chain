@@ -4,11 +4,14 @@ The JSON Schemas in `schema/` are authoritative. This page maps them to files.
 
 | File | Schema | Notes |
 |---|---|---|
-| `data/seed/nodes.csv` | `node.schema.json` | Hand-curated nodes. `aliases` is `;`-separated. `production_countries` is `CC:share;CC:share` (share optional). |
+| `data/seed/nodes.csv` | `node.schema.json` | Hand-curated nodes. `aliases` is `;`-separated. `production_countries` is `;`-separated `CC`, `CC:share` or `CC*` (* = primary, most output there). |
 | `data/seed/inputs.csv` | – | Controlled vocabulary for edge `input`: `id,name,stage,eto_id` |
 | `data/seed/edges.csv` | `edge.schema.json` | One row per edge. Evidence lives in `evidence.csv`. |
 | `data/seed/evidence.csv` | `evidence.schema.json` | One row per piece of evidence, keyed by `edge_id`. |
+| `data/seed/groups.csv` | – | Parent groups for business units: `id,name,hq_country` |
 | `data/sources/sources.csv` | `source.schema.json` | Registry of source documents. |
+| `data/sources/sec_targets.csv` | – | Companies whose latest 10-K/20-F `scg collect sec` fetches |
+| `data/extracted/decisions.csv` | – | Review decisions: reject, or override supplier/buyer/input/alternatives, with a reason |
 | `data/sources/cache/<id>.txt` | – | Cached document text (gitignored). Used to verify excerpts. |
 | `data/extracted/<source_id>.jsonl` | `extraction.schema.json` | Candidate relationships awaiting review. |
 | `data/build/graph.v<N>.json` | – | Built graph loaded by the web app: nodes, edges with evidence, precomputed analysis. |

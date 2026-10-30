@@ -18,3 +18,4 @@ data/sources/cache/
 web/node_modules/
 web/dist/
 .DS_Store
+.*.lock
