@@ -2,13 +2,15 @@ import "./style.css";
 import { loadLatest, type GraphDoc } from "./data";
 import { visibleElements } from "./filters";
 import { GraphView, type ViewMode } from "./graph/view";
+import { MapView } from "./map/mapView";
 import { propagate } from "./scenario/propagate";
 import type { Scenario, ScenarioResult } from "./scenario/types";
+import { countryPanel } from "./ui/countryPanel";
 import { esc } from "./ui/html";
 import { Index, edgePanel, nodePanel } from "./ui/panel";
 import { Sidebar } from "./ui/sidebar";
 
-type Selection = { kind: "node" | "edge"; id: string } | null;
+type Selection = { kind: "node" | "edge" | "country"; id: string } | null;
 
 function aboutPanel(doc: GraphDoc): string {
   const count = (s: string) => doc.edges.filter((e) => e.strength === s).length;
@@ -42,14 +44,17 @@ async function main() {
       ? aboutPanel(doc)
       : selection.kind === "node"
         ? nodePanel(idx, selection.id, result)
-        : edgePanel(idx, selection.id);
+        : selection.kind === "edge"
+          ? edgePanel(idx, selection.id)
+          : countryPanel(idx, selection.id, result);
     panelEl.scrollTop = 0;
   };
 
   const select = (sel: Selection, zoom = false) => {
     selection = sel;
-    view.select(sel);
-    if (zoom && sel) view.fitTo(sel.id);
+    view.select(sel && sel.kind !== "country" ? { kind: sel.kind, id: sel.id } : null);
+    map.select(sel?.kind === "country" ? sel.id : null);
+    if (zoom && sel && sel.kind !== "country") view.fitTo(sel.id);
     renderPanel();
   };
 
@@ -59,12 +64,15 @@ async function main() {
     onBackground: () => select(null),
   });
 
+  const map = new MapView(document.getElementById("map")!, doc, (code) => select({ kind: "country", id: code }));
+
   const sidebar = new Sidebar(document.getElementById("sidebar")!, doc, {
     onScenario: (s) => {
       scenario = s;
       const active = Object.values(scenario).some((v) => v && v.length > 0);
       result = active ? propagate(doc.nodes, doc.edges, scenario) : null;
       view.setScenario(result);
+      map.setScenario(result, scenario.countries ?? []);
       sidebar.showSummary(result);
       renderPanel();
     },
@@ -80,18 +88,26 @@ async function main() {
     const t = ev.target as HTMLElement;
     const nodeLink = t.closest<HTMLElement>("[data-node]");
     const offline = t.closest<HTMLElement>("[data-offline]");
+    const country = t.closest<HTMLElement>("[data-country]");
+    const countryOffline = t.closest<HTMLElement>("[data-offline-country]");
     if (nodeLink) {
       ev.preventDefault();
       select({ kind: "node", id: nodeLink.dataset.node! }, true);
     } else if (offline) {
       sidebar.setScenario({ companies: [offline.dataset.offline!] });
+    } else if (countryOffline) {
+      sidebar.setScenario({ countries: [countryOffline.dataset.offlineCountry!] });
+    } else if (country) {
+      select({ kind: "country", id: country.dataset.country! });
     }
   });
 
   document.querySelectorAll<HTMLButtonElement>("[data-mode]").forEach((b) =>
     b.addEventListener("click", () => {
       document.querySelectorAll("[data-mode]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-      view.setMode(b.dataset.mode as ViewMode);
+      const mode = b.dataset.mode as ViewMode | "map";
+      document.body.classList.toggle("map-mode", mode === "map");
+      if (mode !== "map") view.setMode(mode);
     }),
   );
   document.getElementById("fit")!.addEventListener("click", () => view.fit());

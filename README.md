@@ -81,6 +81,8 @@ npm run build    # static site in web/dist
 
 The app loads the latest `data/build/graph.v<N>.json`. It has a layered view (one column per stage, in supply order) and a force-directed network view. Click a company to see its suppliers and customers grouped by input, with each edge's evidence: the verbatim excerpt and source link, or the written reasoning for inferred edges. Edges are solid when disclosed, dashed when reported and dotted when inferred.
 
+The Map view shades each country by its share of a chosen stage (from the ETO dataset; assembly has no source yet) or, during a scenario, by how many of its companies are impacted. Click a country for its share of every stage, the companies headquartered or producing there, and a button to take it offline.
+
 Scenarios take companies, countries or stages offline. The TypeScript engine runs in the browser, colours each node as offline, fully impacted or partially impacted, and explains why. Stage, country and evidence-strength filters only hide elements; scenarios always run on the full graph.
 
 ## Tests

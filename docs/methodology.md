@@ -93,7 +93,12 @@ Country scenarios use these rules:
 
 - **Chokepoints:** inputs where a buyer has a single known supplier (or `has_alternatives: no`), and inputs where one supplier serves most buyers in the graph.
 - **HHI** per ETO input from company shares and from country shares. ETO's "Various" buckets are excluded. HHI = Σ(share × 100)², from 0 to 10,000; above 2,500 is highly concentrated.
-- **Country share per stage:** each top-level ETO input's country shares, weighted by its market size. The inputs are listed in `STAGE_INPUTS` in `analysis/concentration.py` and chosen so none is a sub-type of another. ETO doesn't cover fabrication, packaging or assembly, so those stages need another public source.
+- **Country share per stage** (the map). The figures measure different things per stage, and the map states the basis for each:
+  - *Design tools & IP, chip design, equipment, materials:* each top-level ETO input's country shares, weighted by its market size. The inputs are listed in `STAGE_INPUTS` in `analysis/concentration.py` and chosen so none is a sub-type of another.
+  - *Fabrication, packaging & test:* ETO's stage-level shares of capacity by site location (2022, citing SIA), i.e. where fabs and ATP plants are, not where their owners are headquartered.
+  - *Assembly & end products:* no public country breakdown found for the whole stage (sources cover single products such as smartphones), so it is shown as a gap rather than estimated.
+  - ETO's "various countries" bucket is kept separately as `other_share`, not spread across named countries. Where ETO reports the EU as a bloc, the map shades every EU member with the bloc's figure, hatched, and never presents it as a member's own share.
+- **Scenario impact on the map:** for each country, the share of companies headquartered there that a scenario impacts (fully or offline = 1, partially = ½). Countries taken offline are drawn black.
 - **Criticality:** every single company, stage and country is taken offline in turn. Score = offline nodes (other than the named company) + fully impacted nodes + ½ × partially impacted nodes. It is precomputed into the build.
 
 ## Extraction

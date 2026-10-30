@@ -548,3 +548,180 @@ section + section {
     border-top: 1px solid var(--border);
   }
 }
+
+/* Map view */
+.map {
+  display: none;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+body.map-mode .map {
+  display: block;
+}
+
+body.map-mode .graph {
+  display: none;
+}
+
+.map-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.map-svg path,
+.map-svg circle {
+  stroke: #fff;
+  stroke-width: 0.5;
+  cursor: default;
+}
+
+.map-svg [data-code] {
+  cursor: pointer;
+}
+
+.map-svg [data-code]:hover {
+  stroke: #0f172a;
+  stroke-width: 1;
+}
+
+.map-svg .selected {
+  stroke: #0f172a;
+  stroke-width: 2;
+}
+
+.map-svg circle.point {
+  stroke: #0f172a;
+  stroke-width: 0.75;
+}
+
+.map-svg .eu-bloc {
+  fill-opacity: 0.55;
+  stroke-dasharray: 2 1.5;
+  stroke: #0c4a6e;
+}
+
+.map-toolbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.map-toolbar label.dim {
+  opacity: 0.45;
+}
+
+.segmented.small button {
+  font-size: 12px;
+  padding: 2px 8px;
+}
+
+.segmented button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.map-info {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  width: 300px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.map-info h4 {
+  margin: 2px 0 6px;
+}
+
+.share-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.share-list li {
+  display: grid;
+  grid-template-columns: 1fr 70px 44px;
+  gap: 8px;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.share-list li > span:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.share-list li[data-code] {
+  cursor: pointer;
+}
+
+.share-list .bar span {
+  background: #0284c7;
+}
+
+.share-list.stages li {
+  grid-template-columns: 1fr 70px 90px;
+}
+
+.legend-ramp {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--ramp);
+  display: flex;
+  justify-content: space-between;
+  margin: 4px 0 16px;
+  position: relative;
+}
+
+.legend-ramp span {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+.map-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: #0f172a;
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  max-width: 260px;
+}
+
+.companies li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 900px) {
+  .map {
+    height: 60vh;
+    order: -1;
+  }
+  .map-info {
+    position: static;
+    width: auto;
+    margin: 8px;
+  }
+}
+
+body.map-mode #fit {
+  visibility: hidden;
+}

@@ -67,11 +67,14 @@ export interface Impact {
 }
 
 export interface StageShares {
-  shares: Record<string, number>;
-  hhi: number;
+  shares: Record<string, number>; // ISO alpha-2, or "EU" for the bloc
+  hhi?: number;
   inputs: string[];
-  years: string[];
-  source: string;
+  years?: string[];
+  basis?: string;
+  other_share?: number; // ETO's unallocated "various countries" bucket
+  source?: string;
+  note?: string;
 }
 
 export interface GraphDoc {

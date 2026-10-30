@@ -100,6 +100,10 @@ def _changelog_entry(version: int, prev: dict | None, doc: dict) -> str:
             lines.append(f"- Removed {len(removed)} {key}: {listed(removed)}")
         if changed:
             lines.append(f"- Changed {len(changed)} {key}: {listed(changed)}")
+    if prev:
+        sections = sorted(k for k in doc.get("analysis", {}) if doc["analysis"][k] != prev.get("analysis", {}).get(k))
+        if sections:
+            lines.append(f"- Analysis changed: {', '.join(sections)}")
     return "\n".join(lines) + "\n\n"
 
 

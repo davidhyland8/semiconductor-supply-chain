@@ -38,3 +38,9 @@ def test_write_build_versions_only_on_change(tmp_path, monkeypatch):
     log = (tmp_path / "CHANGELOG.md").read_text()
     assert log.index("## v2") < log.index("## v1")  # newest first
     assert "- Changed 1 edges: a-to-b-x" in log
+
+
+def test_changelog_notes_analysis_changes():
+    prev = {**doc([E1]), "analysis": {"chokepoints": [], "stage_country_shares": {}}}
+    new = {**doc([E1]), "analysis": {"chokepoints": [], "stage_country_shares": {"fabrication": {}}}}
+    assert "- Analysis changed: stage_country_shares" in build._changelog_entry(2, prev, new)

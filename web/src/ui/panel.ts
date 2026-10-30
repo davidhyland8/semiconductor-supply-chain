@@ -89,7 +89,7 @@ export function nodePanel(idx: Index, id: string, result: ScenarioResult | null)
   const n = idx.node.get(id);
   if (!n) return "";
   const facts: string[] = [];
-  if (n.hq_country) facts.push(`HQ: ${esc(countryName(n.hq_country))}`);
+  if (n.hq_country) facts.push(`HQ: <button class="link" data-country="${esc(n.hq_country)}">${esc(countryName(n.hq_country))}</button>`);
   if (n.parent) facts.push(`Part of ${esc(idx.groupName.get(n.parent) ?? n.parent)}`);
   if (n.ticker) facts.push(esc(n.ticker));
   if (n.kind === "product_category") facts.push("End market (product category)");
@@ -97,7 +97,7 @@ export function nodePanel(idx: Index, id: string, result: ScenarioResult | null)
   const prod = (n.production_countries ?? [])
     .map((p) => {
       const tags = [p.share != null ? pct(p.share) : "", p.primary ? "primary" : "", p.as_of ? `as of ${p.as_of}` : ""].filter(Boolean);
-      return `<li title="${esc(p.basis)}">${esc(countryName(p.country))}${tags.length ? ` <span class="muted">${esc(tags.join(", "))}</span>` : ""}</li>`;
+      return `<li title="${esc(p.basis)}"><button class="link" data-country="${esc(p.country)}">${esc(countryName(p.country))}</button>${tags.length ? ` <span class="muted">${esc(tags.join(", "))}</span>` : ""}</li>`;
     })
     .join("");
 

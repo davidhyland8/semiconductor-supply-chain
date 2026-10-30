@@ -16,6 +16,16 @@ The JSON Schemas in `schema/` are authoritative. This page maps them to files.
 | `data/sources/cache/<id>.txt` | – | Cached document text (gitignored). Used to verify excerpts. |
 | `data/extracted/<source_id>.jsonl` | `extraction.schema.json` | Candidate relationships awaiting review. |
 | `data/build/graph.v<N>.json` | – | Built graph loaded by the web app: nodes, edges with evidence, precomputed analysis. |
+
+`analysis.stage_country_shares.<stage>` in the build:
+
+| Field | Meaning |
+|---|---|
+| `shares` | Country (ISO alpha-2, or `EU` for the bloc) to share of the stage, 0–1 |
+| `other_share` | ETO's unallocated "various countries" share |
+| `basis` | What the figure measures (e.g. capacity by site location) |
+| `years`, `source` | Data year(s) and citation |
+| `note` | Present instead of `shares` when the stage has no source |
 | `data/build/country_shares.json` | – | Country share per stage/input, with source and `as_of`. |
 
 Identifiers are kebab-case (`tsmc`, `samsung-foundry`). Countries are ISO 3166-1 alpha-2 (`TW`, `KR`, `NL`). Dates are `YYYY[-MM[-DD]]`.

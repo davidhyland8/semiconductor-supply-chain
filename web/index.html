@@ -15,12 +15,14 @@
       <div class="segmented" role="group" aria-label="Layout">
         <button data-mode="layered" aria-pressed="true">By stage</button>
         <button data-mode="force" aria-pressed="false">Network</button>
+        <button data-mode="map" aria-pressed="false">Map</button>
       </div>
       <button id="fit" title="Fit graph to screen">Fit</button>
     </header>
     <main class="layout">
       <aside id="sidebar" class="sidebar"></aside>
       <div id="graph" class="graph"></div>
+      <div id="map" class="map"></div>
       <aside id="panel" class="panel"></aside>
     </main>
     <script type="module" src="/src/main.ts"></script>

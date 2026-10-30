@@ -43,6 +43,10 @@ def eto(tmp_path):
         ["Various companies", "P12", "N84", "10", "2025"],
         ["USA", "P1", "N84", "90", "2025"], ["Various countries", "P3", "N84", "10", "2025"],
         ["USA", "P1", "N85", "40", "2019"], ["GBR", "P2", "N85", "60", "2019"],
+        ["USA", "P1", "S2", "70", "2022"], ["Various countries", "P3", "S2", "30", "2022"],
+    ])
+    write("stages.csv", ["stage_id", "stage_name", "market_share_chart_caption", "market_share_chart_source"], [
+        ["S2", "Fabrication", "Chart shows capacity by site location.", "[Some Association](https://example.org)"],
     ])
     return tmp_path
 
@@ -59,7 +63,18 @@ def test_stage_shares_weighted_by_market_size(eto):
     # US: (0.9 * 3 + 0.4 * 1) / 4 = 0.775 ; GB: 0.6 * 1 / 4 = 0.15
     assert stage["shares"] == {"US": 0.775, "GB": 0.15}
     assert stage["weighting"] == "market_size"
-    assert stage_country_shares(eto)["fabrication"]["shares"] == {}
+    assert stage["other_share"] == 0.075
+
+
+def test_site_stage_shares_keep_other_bucket_separate(eto):
+    stages = stage_country_shares(eto)
+    fab = stages["fabrication"]
+    assert fab["shares"] == {"US": 0.7}
+    assert fab["other_share"] == 0.3
+    assert fab["basis"] == "Capacity by site location."
+    assert fab["source"].endswith("citing Some Association")
+    assert stages["packaging_test"]["shares"] == {}  # no S3 rows in the fixture
+    assert stages["assembly_end_products"]["shares"] == {}
 
 
 def test_chokepoints():

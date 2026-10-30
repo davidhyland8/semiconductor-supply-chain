@@ -1,8 +1,10 @@
 """Market concentration from the ETO dataset: HHI per input (by company and by
 country) and market-size-weighted country shares per stage.
 
-ETO covers design, equipment and materials. It has no company or country shares
-for fabrication, packaging or assembly, so those stages are reported as gaps.
+Design, equipment and materials shares are built from ETO's per-input country
+shares. Fabrication and packaging/test use ETO's stage-level shares of site
+capacity by location (from SIA). Assembly and end products has no source, so it
+is reported as a gap.
 """
 
 import csv
@@ -31,7 +33,9 @@ STAGE_INPUTS = {
     "equipment": ["N19", "N36", "N55", "N60", "N17", "N86", "N59", "N120", "N83", "N109"],
     "materials": ["N26", "N31", "N33", "N88", "N90", "N91", "N92", "N100"],
 }
-NOT_COVERED = ["fabrication", "packaging_test", "assembly_end_products"]
+# ETO stage rows giving capacity share by site location.
+SITE_STAGES = {"fabrication": "S2", "packaging_test": "S3"}
+NOT_COVERED = ["assembly_end_products"]
 
 
 def parse_market_size(text: str) -> float | None:
@@ -109,8 +113,38 @@ def stage_country_shares(eto_dir: Path = ETO_DIR) -> dict[str, dict]:
             "inputs": [u["name"] for u in used],
             "weighting": "market_size" if all(sizes) else "equal",
             "years": sorted({u["year"] for u in used if u["year"]}),
+            "basis": "Each input's country shares as reported by ETO, weighted by input market size",
+            "other_share": round(max(0.0, 1 - sum(shares.values())), 4),
             "source": "ETO Advanced Semiconductor Supply Chain Dataset",
         }
+    for stage, sid in SITE_STAGES.items():
+        out[stage] = _site_shares(eto_dir, sid)
     for stage in NOT_COVERED:
         out[stage] = {"shares": {}, "inputs": [], "note": "Not covered by ETO; needs another public source."}
     return out
+
+
+def _site_shares(eto_dir: Path, stage_id: str) -> dict:
+    """Share of a stage's capacity by site location, from ETO's stage-level rows."""
+    path = eto_dir / "stages.csv"
+    if not path.exists():
+        return {"shares": {}, "inputs": [], "note": "ETO stages.csv missing."}
+    with path.open(newline="") as f:
+        stage = next((r for r in csv.DictReader(f) if r["stage_id"] == stage_id), None)
+    _, _, provision = load_eto(eto_dir)
+    rows = [r for r in provision if r["provided_id"] == stage_id and r["share_provided"]]
+    named = [r for r in rows if not _is_other(r["provider_name"])]
+    shares = {ISO3_TO_ISO2.get(r["provider_name"], r["provider_name"]): float(r["share_provided"]) / 100 for r in named}
+    shares = dict(sorted(shares.items(), key=lambda kv: -kv[1]))
+    caption = re.sub(r"^Chart shows\s+", "", (stage or {}).get("market_share_chart_caption", "")).strip()
+    caption = caption[:1].upper() + caption[1:]
+    cited = re.findall(r"\[([^\]]+)\]", (stage or {}).get("market_share_chart_source", ""))
+    return {
+        "shares": shares,
+        "hhi": hhi([s * 100 for s in shares.values()]),
+        "inputs": [(stage or {}).get("stage_name", stage_id)],
+        "years": sorted({r["year"] for r in rows if r["year"]}),
+        "basis": caption,
+        "other_share": round(sum(float(r["share_provided"]) for r in rows if _is_other(r["provider_name"])) / 100, 4),
+        "source": "ETO Advanced Semiconductor Supply Chain Dataset" + (f", citing {cited[0]}" if cited else ""),
+    }

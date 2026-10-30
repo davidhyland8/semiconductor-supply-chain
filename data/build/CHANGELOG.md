@@ -1,5 +1,10 @@
 # Graph build changelog
 
+## v2 (2026-10-30)
+
+63 nodes, 153 edges.
+- Analysis changed: stage_country_shares
+
 ## v1 (2026-10-30)
 
 63 nodes, 153 edges.
